@@ -6,16 +6,16 @@ Isaac<br>
 2. requirement
 3. requirement
 4. requirement
-Caroline<br>
+<br>Caroline<br>
 5. requirement
 6. requirement
 7. requirement
 8. requirement
-Kathy<br>
+<br>Kathy<br>
 9. requirement
 10. requirement
 11. requirement
-Duy<br>
+<br>Duy<br>
 12. requirement
 13. requirement
 14. requirement
