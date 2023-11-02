@@ -20,7 +20,7 @@ Isaac<br>
 13. requirement
 14. requirement
 
-<using the syntax [](images/ui1_mockup.png) add images in a folder called images/ and place sketches of your webpages>
+<using the syntax ![](images/ui1_mockup.png) add images in a folder called images/ and place sketches of your webpages>
 
 ## Non-functional Requirements
 1. non-functional
