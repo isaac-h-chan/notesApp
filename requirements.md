@@ -184,7 +184,7 @@ Alternative Postconditions
 
 ## Requirement 11
 
-Name: User should be able to filter notes by tags.
+Name: The user should be able to filter notes by tags.
 
 Actors: A user which is logged in.
 
