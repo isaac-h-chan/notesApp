@@ -7,9 +7,9 @@
 6. requirement
 7. requirement
 8. requirement
-9. requirement
-10. requirement
-11. requirement
+9. The user should be able to share notes with other users.
+10. The user should be able to lock notes with a passcode.
+11. The user should be able to filter notes by tags.
 12. requirement
 13. requirement
 14. requirement
@@ -124,4 +124,89 @@ Alternative Sequence:
 
 Alternative Postconditions:
 - The note has no new cover image.
+
+## Requirement 9
+Name: The user should be able to share notes with other users
+
+Actors: A user which is logged in.
+
+Precondition: The user has a preexisting account on the website and is logged in. The user has created at least one note.
+
+Trigger: The user clicks on the note they wish to share, then presses the "Share" icon.
+
+Primary Sequence:
+1. System prompts user to search the username of a pre-existing user to share the note with.
+2. User enters in the username of the user.
+3. User presses the "Share note" button, and the note is now shared with the user entered previously.
+
+Primary Postconditions
+- The user's selected note is shared with the entered user; the entered user now has access to the shared note.
+
+Alternative Sequence:   
+The user has already shared the note with the entered user:
+1. An error occurs, and a prompt is shown warning that the entered user already has access to the current note.
+
+The user enters in an invalid username (username does not exist in the database):
+1. User is prompted that the username entered does not exist.
+1. User is prompted to enter a valid username.
+
+The user is attempting to share a locked note:
+1. User will be prompted to ensure that they wish to share the locked note.
+1. User can select to proceed with sharing the note or to cancel.
+
+Alternative Postconditions
+- The note is not shared.
+
+## Requirement 10
+Name: The user should be able to lock notes with a passcode.
+
+Actors: A user which is logged in.
+
+Precondition: The user has a preexisting account on the website and is logged in. The user has created at least one note.
+
+Trigger: The user selects the note to lock, then presses the note settings icon. From there, the user selects the option "Lock note".
+
+Primary Sequence:
+1. User enters a passcode for the note.
+2. User presses the "submit" button.
+3. User is prompted with a warning: "Are you sure you wish to lock this note?"
+4. User presses "Yes" to proceed locking the selected note.
+
+Primary Postconditions
+- The user's selected note is now locked with a passcode.
+
+Alternative Sequence
+The user presses "No" when prompted:
+1. User is returned to the selected note's settings view.
+
+Alternative Postconditions
+- The note is not locked.
+
+## Requirement 11
+
+Name: User should be able to filter notes by tags.
+
+Actors: A user which is logged in.
+
+Precondition: The user has a preexisting account on the website and is logged in. The user has created customized tags.
+
+Trigger: The user selects the "Filter by tag" option next to the search bar. 
+
+Primary Sequence:
+1. In a drop down menu, all user-created tags appear.
+2. User selects one or more tags to filter notes by.
+3. A list of notes with matching tags appear for the user to select.
+
+Primary Postconditions
+- Notes with tags matching the selected tags appear for the user to select.
+
+Alternative Sequence
+1. The user has not created any tags:
+2. User must select the "Create new tag" button.
+3. The user must enter the name of the tag.
+4. The user presses "Submit".
+5. Once the user attempts to filter by tag again, the newly created tag will appear in the dropdown menu.
+
+Alternative Postconditions
+- All notes appear on the screen when searching without filtering by tag or title (when no tags exist, filtering by tag will default to viewing the full list of notes).
 
