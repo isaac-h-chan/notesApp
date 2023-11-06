@@ -10,9 +10,10 @@
 9. The user should be able to share notes with other users.
 10. The user should be able to lock notes with a passcode.
 11. The user should be able to filter notes by tags.
-12. requirement
-13. requirement
-14. requirement
+12. The user should be able to delete their profile
+13. The user should be able to request to convert the note to pdf and download
+14. The user should be able to create checklist in each note
+
 
 # UI Mockup
 ![](images/ui1_mockup.png)
@@ -314,3 +315,77 @@ Alternative Sequence
 
 Alternative Postconditions
 - All notes appear on the screen when searching without filtering by tag or title (when no tags exist, filtering by tag will default to viewing the full list of notes).
+
+## Requirement 12
+Name: User should be able to delete the profile
+
+Actors: User that login into the page and website
+
+Precondition: Option for the user who wishes to delete the account if no longer used
+
+Trigger: The user selects the option “Delete Account” in the main menu
+
+Primary Sequence:
+
+1. When user clicks into the the user profile, the system prompts the option for the user with the icon “Delete Account”
+2. After user click “Delete Account,” system will prompt the window display the selection of why user want to delete the account
+3. After the selection, the system will prompt another window to ask if user is sure to delete the account or not
+4. If user select yes, then it will prompt the window that delete successfully and return to login page
+
+Alternate Sequence: 
+- During the selection of the reason of delete the user, if user decide not to delete, there will be an option “No Delete Account,” the system will bring user back to the main page.
+
+Alternate Postcondition:
+-The account will not be deleted and return to user profile page
+
+Primary Postcondition:
+-  After delete the account, the system will prompt back to the login page for more option
+
+## Requirement 13
+Name: The user can convert to pdf and download the note
+
+Actor: User that use the page and note
+
+Precondition: User that wish to download the note to pdf to save into the local device
+
+Trigger: The user select the option to download the file
+
+Primary sequence:
+1. On the note page on the tool bar, there will be an option called “Download” that allow user to download the note down
+2. The system will prompt the windows display the window with the message that the file will be converted into PDF file. If the user agree, then click the option “Download” on the same window
+3. After clicking the download option, system will prompt a new window that display the “The file is converted to PDF and downloading…”
+
+Alternate Sequence:
+- On step #2, if the user does not like to download the file into pdf file, there will be the option “Cancel” and return back to the main page.
+
+Alternate Postcondition:
+- The system will bring the user back to the note page
+
+Primary Postcondition:
+ After successfully download the file, the system will prompt the window with the message that “The file has been downloaded successfully
+
+## Requirement 14
+
+Name: The user should be able create checklist inside of the note
+
+Actor: user that login into the page
+
+Precondition: User need to create a checklist inside of the note
+
+Trigger: User select the option “Create Checklist” in the tool box in the note
+
+Primary Sequennce:
+1. After user select the option the create the checklist, the system will prompt the checklist on the side of the note.
+2. The system will let the user to type in the checklist by clicking into it.
+3. If user finish typing on the checklist, on the side of the note will have the option “Done” to finalize the checklist and save it
+4. If the user would like to add , delete or modify the checklist, user simply just select the checklist option and it will open up for user to see.
+
+Alternate Sequence:
+- During the edit of the checklist, if user no longer needed the checklist, there will be the “x” option on top right of the checklist to delete and turn off the checklist.
+
+Alternate Postcondition
+- The system will return back to the note page without the checklist
+
+Primary Postcondition:
+- After finalize the checklist and select “Done”, user is able to view the note and the checklist on the same page.
+
