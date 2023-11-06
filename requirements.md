@@ -17,6 +17,7 @@
 
 # UI Mockup
 ![](images/ui1_mockup.png)
+![](images/ui1_mockup_user_settings.png)
 
 
 # Non-functional Requirements
