@@ -3,17 +3,16 @@
 2. The user should be able to edit their profile
 3. The user must be able to log in to their account
 4. The application must be able to generate images as covers for individual notes using Together API
-5. requirement
-6. requirement
-7. requirement
-8. requirement
+5. The user should be able to create a note.
+6. The user should be able to edit a note.
+7. The user should be able to edit a note.
+8. The user should be able to search up notes.
 9. The user should be able to share notes with other users.
 10. The user should be able to lock notes with a passcode.
 11. The user should be able to filter notes by tags.
 12. requirement
 13. requirement
 14. requirement
-
 
 # UI Mockup
 ![](images/ui1_mockup.png)
@@ -126,6 +125,111 @@ Alternative Sequence:
 Alternative Postconditions:
 - The note has no new cover image.
 
+## Requirement 5
+
+Name: Create a note
+
+Summary: a user who has logged in can select the option to create a note
+
+Actors: The users/customers that are creating a note.
+
+Preconditions: The customer has logged in 
+
+Trigger: customer/user selects  “create a note”
+
+Primary Sequence:
+1. Systems prompts user to main page and displays create a note section
+2. customer/user selects “create a note”
+3. Systems opens create note section and displays it
+4. User confirms their intent create the note
+5. Systems displays that note is created
+6. Customer is satisfied and can sign out
+
+Alternative Sequence
+- The customer cannot create a note and displays an error message. 
+
+Post-conditions
+- Customer is able to create a note and view it
+
+## Requirement 6
+
+Name: Edit a note
+
+Summary: A customer/user who has logged in can view the note and edit it.
+
+Actors: The customer/User
+
+Precondition: The customer has logged in
+
+Trigger: Customer selects the option to “edit note” option.
+
+Primary Sequence: 
+1. System prompts user to main page and displays option to edit note
+2. Customer/User Selects option to edit note
+3. Systems displays list of existing notes 
+4. Customer can scroll and chose which note they want to edit
+5. Customer clicks which note they want to edit
+6. Customer is satisfied and can submit
+
+Alternative Sequence
+- if the user decides not to edit the note then the system displays to cancel editing without any changes being made.
+
+Post-conditions
+- the note that's been selected for editing is updated with the changes.
+- the changes can be viewed when selecting the note
+
+## Requirement 7
+
+Name: Delete a note 
+
+Summary: A customer/user who has logged in can delete a note
+
+Actors: The customer/User
+
+Precondition: The customer has logged in 
+
+Trigger: Customer selects the option to “delete note” option.
+
+Primary Sequence: 
+1. System prompts user to main page and displays option to delete note
+2. Systems displays list of existing notes
+3. customer/user selects option to delete note
+4. The customer/user selects the note they want to delete
+5. Customer/user deletes note
+6. customer/user is satisfied and can sign out
+
+Alternative Sequence
+- if the user decides not to delete the note then the system displays the option to cancel without deleting any notes.
+
+Post-conditions
+- The selected note that was chosen is deleted and cannot be seen in the list of notes.
+
+## Requirement 8
+
+Name: Search up notes
+
+Summary: a user who has logged in can select the option to search for notes
+
+Actors: Customer/User
+
+Precondition: The customer has logged in
+
+Trigger: Customer selects the option to “search up notes”.
+
+Primary Sequence:
+1. System prompts user to main page and displays option to search up specific note
+2. Systems provides a search field
+3. The customer/user enters keyword for what they want to search for
+4. Systems prompts a list of notes that match those keywords
+5. The customer/ user can view the notes they searched and chose one
+The customer is satisfied and can sign out
+
+Alternative Sequence
+- if the initial search does not show any option of notes with those keywords the system should display an error with “no note found”.
+
+Post-conditions
+- The customer/user can view the content in which they searched for. 
+
 ## Requirement 9
 Name: The user should be able to share notes with other users
 
@@ -210,4 +314,3 @@ Alternative Sequence
 
 Alternative Postconditions
 - All notes appear on the screen when searching without filtering by tag or title (when no tags exist, filtering by tag will default to viewing the full list of notes).
-
