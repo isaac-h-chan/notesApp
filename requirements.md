@@ -323,7 +323,7 @@ Actors: User that login into the page and website
 
 Precondition: Option for the user who wishes to delete the account if no longer used
 
-Trigger: The user selects the option “Delete Account” in the main menu
+Trigger:User selects the option “Delete Account” in the main menu
 
 Primary Sequence:
 
