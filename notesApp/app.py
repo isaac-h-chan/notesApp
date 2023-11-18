@@ -1,13 +1,13 @@
 # app.py
 from flask import Flask, render_template, request, redirect, url_for
+from notesApp import flask_obj
 
-app = Flask(__name__)
 
-@app.route('/')
+@flask_obj.route('/')
 def login():
     return render_template('login.html')
 
-@app.route('/login', methods=['POST'])
+@flask_obj.route('/login', methods=['POST'])
 def handle_login():
     # Check username and password
     username = request.form.get('username')
@@ -21,7 +21,7 @@ def handle_login():
         # You can handle authentication failure here
         return render_template('login.html', error='Incorrect username or password')
 
-@app.route('/create_account.html', methods=['GET', 'POST'])
+@flask_obj.route('/create_account.html', methods=['GET', 'POST'])
 def create_account():
     if request.method == 'POST':
         # Get user input from the registration form
@@ -42,7 +42,7 @@ def create_account():
 
     return render_template('create_account.html')
 
-@app.route('/forgot_password.html', methods=['GET', 'POST'])
+@flask_obj.route('/forgot_password.html', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         # Check if the provided email exists in the database
@@ -60,23 +60,20 @@ def forgot_password():
 
     return render_template('forgot_password.html')
 
-@app.route('/password_reset_confirmation')
+@flask_obj.route('/password_reset_confirmation')
 def password_reset_confirmation():
     return render_template('password_reset_confirmation.html')
 
-@app.route('/home')
+@flask_obj.route('/home')
 def home():
     return render_template('home.html')
 
-@app.route('/options')
+@flask_obj.route('/options')
 def options():
     return render_template('options.html')
 
-@app.route('/logout')
+@flask_obj.route('/logout')
 def logout():
     # You can perform any necessary logout logic here
     # For now, we'll just redirect to the login page
     return render_template('login.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
