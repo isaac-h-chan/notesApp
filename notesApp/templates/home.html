@@ -1,0 +1,28 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Notes App</title>
+</head>
+<body>
+    <div class="home-container">
+        <h1>Notes App</h1>
+        <div class="note-container">
+        <!-- Search Bar -->
+            <label for="search">Search notes:</label>
+            <input type="text" id="search" name="search" placeholder="...">
+            <button type="submit">Search</button>
+            <button type="button" onclick="applyFilter()">Filter</button>
+            <textarea placeholder="Create a note"></textarea>
+            <button onclick="addNote()">Create Note</button>
+            <button type="share">Share Note</button>
+
+        </div>
+        <div id="notes-container"></div>
+        <a href="/options"><button>Settings</button></a>
+    </div>
+</body>
+</html>
