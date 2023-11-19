@@ -1,6 +1,9 @@
 # app.py
-from flask import Flask, render_template, request, redirect, url_for
-from notesApp import flask_obj
+from flask import render_template, request, redirect, url_for
+from notesApp.models import User
+from notesApp import flask_obj, db
+from werkzeug.security import generate_password_hash, check_password_hash
+import sqlalchemy
 
 
 @flask_obj.route('/')
@@ -10,19 +13,23 @@ def login():
 @flask_obj.route('/login', methods=['POST'])
 def handle_login():
     # Check username and password
-    username = request.form.get('username')
+    email = request.form.get('email')
     password = request.form.get('password')
 
     # Hardcoded username and password for demonstration
-    if username == 'username' and password == 'password':
+    if not bool(db.session.execute(db.select(User).where(User.email == email)).scalar()):
+            return render_template('login.html', error1='No account exists with this email.') 
+   
+    if check_password_hash(db.session.execute(db.select(User.password).where(User.email == email)).scalar(), password):
         # Redirect to home.html upon successful login
         return redirect(url_for('home'))
     else:
         # You can handle authentication failure here
-        return render_template('login.html', error='Incorrect username or password')
+        return render_template('login.html', error2='Incorrect Password')
 
-@flask_obj.route('/create_account.html', methods=['GET', 'POST'])
+@flask_obj.route('/create_account', methods=['GET', 'POST'])
 def create_account():
+    data = request.form
     if request.method == 'POST':
         # Get user input from the registration form
         username = request.form.get('username')
@@ -30,19 +37,19 @@ def create_account():
         email = request.form.get('email')
 
         # Check if the email is already associated with an existing account
-        if any(user['email'] == email for user in users):
-            return render_template('create_account.html', error='An account with this email already exists.')
-
+        if bool(db.session.execute(db.select(User).where(User.email == email)).scalar()):
+            return render_template('create_account.html', data=request.form, error='An account with this email already exists.')
+        
         # Create a new user and add them to the database
-        new_user = {'username': username, 'password': password, 'email': email}
-        users.append(new_user)
+        new_user = User(email=email, username=username, password=generate_password_hash(password))
+        db.session.add(new_user)
+        db.session.commit()
 
         # Redirect to the login page after successful registration
         return redirect(url_for('login'))
+    return render_template('create_account.html', data=data)
 
-    return render_template('create_account.html')
-
-@flask_obj.route('/forgot_password.html', methods=['GET', 'POST'])
+@flask_obj.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         # Check if the provided email exists in the database
