@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <title>Create Account</title>
 </head>
 <body>
     <div class="create-account-container">
-        <form action="/create_account" method="post">
+        <form action="/create_account" method="POST">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" value="{{data.username}}" required>
 
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
@@ -19,12 +19,11 @@
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
-            <button type="submit">Create Account</button>
-
             {% if error %}
                 <p style="color: red;">{{ error }}</p>
             {% endif %}
 
+            <button type="submit">Create Account</button>
         </form>
     </div>
 </body>
