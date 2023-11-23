@@ -1,0 +1,251 @@
+/* styles.css */
+@import url('https://fonts,googleapis.com/css?family=Montserrat:500');
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    background-color: rgb(15, 15, 15);
+}
+
+/* dashboard notes view css */
+.notes {
+    display: flex;
+    height: 100%;
+}
+
+.notes * {
+    caret-color:rgb(26, 143, 98);
+    font-family: "Montserrat", sans-serif;
+}
+
+.notes__sidebar {
+    border-right: 2px solid rgb(26, 27, 27);
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 1em;
+    width: 300px;
+}
+
+.notes__add {
+    background: rgb(26, 143, 98);
+    border: none;
+    border-radius: 7px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 1.15em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    padding: 0.75em 0;
+    width: 100%;
+}
+
+.notes__add:hover {
+    background: rgb(26, 143, 98, 0.8);
+}
+
+.notes__list-item {
+    cursor: pointer;
+    border-bottom: 1px solid rgb(26, 27, 27);
+}
+
+.notes__list-item:hover {
+    background: #0a0a0a;
+    border-radius: 7px;
+    font-weight: bold;
+}
+
+.notes__list-item--selected {
+    background: #0a0a0a;
+    border-radius: 7px;
+    font-weight: bold;
+}
+
+.notes__small-title,
+.notes__small-updated {
+    padding: 10px;
+}
+
+.notes__small-title {
+    font-size: 1.2em;
+    color:rgb(26, 143, 98)
+}
+
+.notes__small-body {
+    padding: 0 10px;
+    color:#b6b4b4;
+}
+
+.notes__small-updated {
+    color: #aaaaaa;
+    font-size: 0.75em;
+    text-align: right;
+}
+
+.notes__preview {
+    display: flex;
+    flex-direction: column;
+    padding: 2em 3em;
+    flex-grow: 1;
+}
+
+.notes__view {
+    display: flex;
+    flex-direction: column;
+    padding: 2em 3em;
+    flex-grow: 1;
+}
+
+.notes__title-view,
+.notes__body-view {
+    border: none;
+    outline: none;
+    width: 100%;
+}
+
+.notes__title-view {
+    color: rgb(26, 143, 98);
+    font-size: 3em;
+    font-weight: bold;
+    background:rgb(15, 15, 15);
+}
+
+.notes__body-view {
+    background:rgb(15, 15, 15);
+    color:#b6b4b4;
+    flex-grow: 1;
+    font-size: 1.2em;
+    line-height: 1.5;
+    margin-top: 2em;
+}
+
+.notes__title,
+.notes__body {
+    border: none;
+    outline: none;
+    width: 100%;
+}
+
+.notes__title {
+    color: rgb(26, 143, 98);
+    font-size: 3em;
+    font-weight: bold;
+    background:rgb(15, 15, 15);
+}
+
+.notes__body {
+    background:rgb(15, 15, 15);
+    color:#b6b4b4;
+    flex-grow: 1;
+    font-size: 1.2em;
+    line-height: 1.5;
+    margin-top: 2em;
+}
+
+.notes__save {
+    float: right;
+    margin-bottom: 55px;
+}
+
+/* header css */
+header {
+    background:#0a0a0a;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin: bottom 0;
+    /* border-bottom: 5px solid rgb(26, 143, 98) */
+}
+
+.logo {
+    cursor: pointer;
+}
+
+/* searchbar */
+.box {
+    caret-color:rgb(26, 143, 98);
+    margin-left: 115px;
+    height: 20px;
+    display: flex;
+    cursor: pointer;
+    padding: 5px 10px;
+    background: #0a0a0a; /* rgb(26, 27, 27) */
+    border-radius: 20px;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0, 0.3);
+}
+
+.box:hover input{
+    width: 100px;
+}
+
+.box input {
+    color:#aaaaaa;
+    width: 0px;
+    outline: none;
+    border: none;
+    font-weight: 500;
+    transition: 0.8s;
+    background: transparent;
+}
+
+.box input:not(:placeholder-shown) {
+    width:100px;
+}
+
+.box:hover a .fas {
+    color:rgb(26, 143, 98);
+}
+
+.box a .fas {
+    color: #ffffff;
+    font-size: 15px;
+}
+
+/* navigator css */
+nav {
+    margin-left:auto;
+    margin-right:0;
+}
+
+.nav__links {
+    list-style: none;
+}
+
+.nav__links li {
+    display: inline-block;
+    padding: 0px 20px;
+}
+
+.nav__links li a {
+    transition: all 0.3s ease 0s;
+}
+
+.nav__links li a:hover {
+    color: rgb(26, 143, 98);
+}
+
+button {
+    padding: 9px 25px;
+    background-color: rgb(26, 143, 98);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3 ease 0s;
+}
+
+button:hover {
+    background-color: rgb(26, 143, 98, 0.8);
+}
+
+li, a, button{
+    margin-left:auto;
+    margin-right:0;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500;
+    font-size:16 px;
+    color:#edf8f1;
+    text-decoration: none;
+}

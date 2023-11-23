@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 import os
 
+static_folder = 'static'
 
 flask_obj = Flask(__name__)
 
@@ -15,7 +16,7 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(flask_obj, model_class=Base)
 
-from notesApp.models import User
+from notesApp.models import User, Tag, Note, NoteTag
 
 with flask_obj.app_context():
     db.create_all()

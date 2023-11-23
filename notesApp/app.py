@@ -1,10 +1,8 @@
 # app.py
 from flask import render_template, request, redirect, url_for
-from notesApp.models import User
+from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlalchemy
-
 
 @flask_obj.route('/')
 def login():
@@ -71,9 +69,41 @@ def forgot_password():
 def password_reset_confirmation():
     return render_template('password_reset_confirmation.html')
 
-@flask_obj.route('/home')
+@flask_obj.route('/home', methods=['GET', 'POST'])
 def home():
-    return render_template('home.html')
+    notes = Note.query.all()
+    data = request.form
+
+    if request.method == 'POST':
+        title = request.form['note_title']
+        body = request.form['note_body']
+
+        new_note = Note(title=title, body=body, user_id = 1) # placeholder id
+        db.session.add(new_note)
+        db.session.commit()
+
+        notes = Note.query.all()
+
+    # TODO: Modify note view when existing note is clicked
+        
+    return render_template('home.html', **locals())
+
+@flask_obj.route('/home/noteview', methods=['GET', 'POST'])
+def viewnote():
+    notes=Note.query.all()
+    data = request.form
+    title = "None"
+    body = "None"
+    selected_note = Note(title=title, body=body, user_id=1)
+
+    if request.method == 'POST':
+        title = request.form['note_title-item']
+        body = request.form['note_body-item']
+
+        notes = Note.query.filter_by(body=body).all()
+        selected_note = Note(title=title, body=body, user_id = 1)  # temporary, fix later: Note.query.filter_by(body=body).all()
+
+    return render_template('home.html', **locals())
 
 @flask_obj.route('/options')
 def options():
