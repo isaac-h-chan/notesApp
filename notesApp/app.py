@@ -1,8 +1,11 @@
 # app.py
 from flask import render_template, request, redirect, url_for
+from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
+
+noteIDs = {}
 
 @flask_obj.route('/')
 def login():
@@ -19,6 +22,9 @@ def handle_login():
             return render_template('login.html', error1='No account exists with this email.') 
    
     if check_password_hash(db.session.execute(db.select(User.password).where(User.email == email)).scalar(), password):
+        # store current user's user id for later usage
+        login_session['id'] = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
+
         # Redirect to home.html upon successful login
         return redirect(url_for('home'))
     else:
@@ -71,18 +77,21 @@ def password_reset_confirmation():
 
 @flask_obj.route('/home', methods=['GET', 'POST'])
 def home():
-    notes = Note.query.all()
+    # view only notes for specific user
+    notes = Note.query.filter(Note.user_id == login_session['id']).all()
     data = request.form
 
     if request.method == 'POST':
         title = request.form['note_title']
         body = request.form['note_body']
 
-        new_note = Note(title=title, body=body, user_id = 1) # placeholder id
+        new_note = Note(title=title, body=body, user_id = login_session['id'])
         db.session.add(new_note)
         db.session.commit()
 
-        notes = Note.query.all()
+        # update noteview after new note is created
+        notes = Note.query.filter(Note.user_id == login_session['id']).all()
+        noteIDs[new_note.id] = title
         
     return render_template('home.html', **locals())
 
@@ -94,4 +103,5 @@ def options():
 def logout():
     # You can perform any necessary logout logic here
     # For now, we'll just redirect to the login page
+    del login_session['id']
     return render_template('login.html')
