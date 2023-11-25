@@ -49,13 +49,8 @@ body {
     border-bottom: 1px solid rgb(26, 27, 27);
 }
 
-.notes__list-item:hover {
-    background: #0a0a0a;
-    border-radius: 7px;
-    font-weight: bold;
-}
-
-.notes__list-item--selected {
+.notes__list-item:hover,
+.notes__list-item:focus {
     background: #0a0a0a;
     border-radius: 7px;
     font-weight: bold;

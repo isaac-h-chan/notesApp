@@ -43,14 +43,14 @@
     <div class="notes">
         <div class="notes__sidebar">
             <button class="notes__add">New Note</button>
-            <div class="notes__list">
+            <div class="notes__list" id="notes__list">
                 {% for note in notes %}
-                <div class="notes__list-item" type="submit">
+                <div class="notes__list-item" tabindex="-1">
                     <div class="notes__small-title" style="display: none;">{{note.title}}</div>
                     <div class="notes__small-title">{{note.title | truncate(30, true, '...',0)}}</div>
                     <div class="notes__small-body" style="display: none;">{{note.body}}</div>
                     <div class="notes__small-body">{{note.body | truncate(45, true,'...',0)}}</div>
-                    <div class="notes__small-updated" id="update"></div>
+                    <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
                 </div>
                 {% endfor %}
             </div>
@@ -76,15 +76,9 @@
         <script>
             // updates note view on note click
             $('.notes__list-item').click(function (title, body) {
-                var titleText = $(this).find(".notes__small-title").html();
-                $('#note_title').val(titleText);
+                $('.notes__title').val($(this).find(".notes__small-title").html());
                 $('.notes__preview textarea').html($(this).find(".notes__small-body").html());
             });
-
-            $('.notes__list-item').click(function () {
-                var latestDate = new Date(document.lastModified);
-                $('#update').val(latestDate)
-            })
 
             // opens view for creating new note
             $('.notes__add').click(function (title, body) {
@@ -95,4 +89,5 @@
         </script>
     </div>
 </body>
+
 </html>
