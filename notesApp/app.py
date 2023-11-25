@@ -83,26 +83,7 @@ def home():
         db.session.commit()
 
         notes = Note.query.all()
-
-    # TODO: Modify note view when existing note is clicked
         
-    return render_template('home.html', **locals())
-
-@flask_obj.route('/home/noteview', methods=['GET', 'POST'])
-def viewnote():
-    notes=Note.query.all()
-    data = request.form
-    title = "None"
-    body = "None"
-    selected_note = Note(title=title, body=body, user_id=1)
-
-    if request.method == 'POST':
-        title = request.form['note_title-item']
-        body = request.form['note_body-item']
-
-        notes = Note.query.filter_by(body=body).all()
-        selected_note = Note(title=title, body=body, user_id = 1)  # temporary, fix later: Note.query.filter_by(body=body).all()
-
     return render_template('home.html', **locals())
 
 @flask_obj.route('/options')
