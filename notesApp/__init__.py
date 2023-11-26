@@ -10,6 +10,7 @@ flask_obj = Flask(__name__)
 
 base_path = os.path.abspath(os.path.dirname(__file__))
 flask_obj.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(base_path, "app.db")
+flask_obj.secret_key = "placeholdersecretkey"
 
 class Base(DeclarativeBase):
   pass
