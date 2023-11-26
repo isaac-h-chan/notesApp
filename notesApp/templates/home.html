@@ -1,28 +1,103 @@
-<!-- home.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
     <title>Notes App</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body>
-    <div class="home-container">
-        <h1>Notes App</h1>
-        <div class="note-container">
-        <!-- Search Bar -->
-            <label for="search">Search notes:</label>
-            <input type="text" id="search" name="search" placeholder="...">
-            <button type="submit">Search</button>
-            <button type="button" onclick="applyFilter()">Filter</button>
-            <textarea placeholder="Create a note"></textarea>
-            <button onclick="addNote()">Create Note</button>
-            <button type="share">Share Note</button>
 
+<body>
+    <header>
+        <img class="logo" src="../static/logo_white.svg" alt="logo">
+        <nav>
+            <ul class="nav__links">
+
+                <li>
+                    <div class="box">
+                        <input type="text" placeholder="Search...">
+                        <a href="#">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </li>
+
+                <li>
+                    <a href="/options">
+                        <i class="fas fa-bars" aria-hidden="true"></i>
+                    </a>
+                </li>
+
+                <li>
+                    <a class="cta" href="/">
+                        <button>Log Out</button>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="notes" id="app">
+        <div class="notes__sidebar">
+            <button class="notes__add" onclick="show_new();" type="submit">New Note</button>
+            <!-- TODO: Complete form for new note view after clicking on a note. -->
+            <div class="notes__list">
+                {% for note in notes %}
+                <form action=/home/noteview method="post"></form>
+                <div class="notes__list-item" onclick="show_note()"; type="submit">
+                    <div class="notes__small-title" name="note_title-item">{{note.title}}</div>
+                    <div class="notes__small-body" name="note_body-item" style="display: none">{{note.body}}</div>
+                    <div class="notes__small-body">{{note.body | truncate(45, true,'...',0)}}</div>
+                    <div class="notes__small-updated">Last Edited Friday 1:35pm</div>
+                </div>
+                </form>
+                {% endfor %}
+            </div>
         </div>
-        <div id="notes-container"></div>
-        <a href="/options"><button>Settings</button></a>
+        <div class="notes__preview" style="display: visible;">
+            <form action=/home method="post">
+                <input name="note_title" class="notes__title" type="text" placeholder="Enter a title...">
+                <textarea name="note_body" class="notes__body" placeholder="I am the note's body..."></textarea>
+                <script type="text/javascript">
+                    textarea = document.querySelector(".notes__body");
+                    textarea.addEventListener('input', autoResize, false);
+
+                    function autoResize() {
+                        this.style.height = 'auto';
+                        this.style.height = this.scrollHeight + 'px';
+                    }
+                </script>
+                <button type="submit" class="notes__save">Save Note</button>
+            </form>
+        </div>
+        <!-- {% if selected_note %} -->
+        <div class="notes__view" style="display: none;">
+            <input name="note_title" class="notes__title-view" type="text" placeholder="Enter a title..."
+                value="Tester title?">
+            <textarea name="note_body" class="notes__body-view" placeholder="I am the note's body...">hello</textarea>
+        </div>
+        <!-- {% endif %} -->
+
+        <script>
+            function show_note() {
+                let notes__preview = document.querySelector(".notes__preview");
+                let notes__view = document.querySelector(".notes__view");
+
+                notes__preview.style.display = "none";
+                notes__view.style.display = "flex"
+            }
+
+            function show_new() {
+                let notes__preview = document.querySelector(".notes__preview");
+                let notes__view = document.querySelector(".notes__view");
+
+                notes__preview.style.display = "flex";
+                notes__view.style.display = "none"
+            }
+        </script>
     </div>
 </body>
+
 </html>

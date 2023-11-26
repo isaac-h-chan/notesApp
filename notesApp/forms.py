@@ -16,6 +16,3 @@ class createUserForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired(), EqualTo("confirmPass", "Passwords must match")])
     confirmPass = PasswordField("Confirm Password", validators=[DataRequired()])
     create = SubmitField("Create Account")
-
-
-    
