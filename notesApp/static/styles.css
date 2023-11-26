@@ -105,7 +105,6 @@ body {
     flex-grow: 1;
     font-size: 1.2em;
     line-height: 1.5;
-    margin-top: 2em;
 }
 
 .notes__save {
@@ -214,4 +213,55 @@ li, a, button{
     font-size:16 px;
     color:#edf8f1;
     text-decoration: none;
+}
+
+#taglist {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1em;
+}
+
+#tag_end {
+    display: flex;
+    gap: 3px;
+}
+
+.tag {
+    all: initial;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-left: .5em;
+    padding-right: .5em;
+    text-align: center;
+    background-color: rgb(57, 55, 55);
+    color: white;
+    height: 1.5em;
+    min-width: 8ch;
+    width: fit-content;
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+    border: solid;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: lightslategray;
+    transition: background-color 1s;
+}
+#add_tag {
+    width: 4em;
+}
+
+#add_tag_button {
+    width: 1.5em;
+    height: 1.5em;
+    padding: 0;
+    min-width: 0;
+    border-radius: 50%;
+}
+
+#add_tag:hover #add_tag_button:hover {
+    background-color: lightslategray;
 }

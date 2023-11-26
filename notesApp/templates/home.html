@@ -59,6 +59,16 @@
         <div class="notes__preview" name="notes__preview">
             <form action=/home method="post">
                 <input id=note_title name="note_title" class="notes__title" type="text" placeholder="Enter a title...">
+                <div id="taglist">
+                    {% for tag in tags %}
+                    <div class="tag">tag.title</div>
+                    {% endfor %}
+                    <div id="tag_end">
+                        <input id="add_tag" class="tag" type="text" placeholder="New Tag">
+                        <button id="add_tag_button" class="tag" type="submit" formaction="/">+</button>
+                    </div>
+                    
+                </div>
                 <textarea name="note_body" class="notes__body" placeholder="I am the note's body..."></textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
@@ -69,7 +79,7 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 </script>
-                <button type="submit" class="notes__save">Save Note</button>
+                <button type="submit" class="notes__save" onsubmit="">Save Note</button>
             </form>
         </div>
 
@@ -86,6 +96,11 @@
                 $('#note_title').val(titleText);
                 $('.notes__preview textarea').html($(this).find(".notes__body"));
             })
+
+            const add_tag = document.getElementById("add_tag");
+            add_tag.addEventListener('input', (e) => {
+                e.target.style.width = e.target.value.length + "ch";
+            });
         </script>
     </div>
 </body>

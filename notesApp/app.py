@@ -85,6 +85,9 @@ def home():
         title = request.form['note_title']
         body = request.form['note_body']
 
+        if len(title) == 0:
+            title = "New Note"
+
         new_note = Note(title=title, body=body, user_id = login_session['id'])
         db.session.add(new_note)
         db.session.commit()
