@@ -80,22 +80,42 @@ def home():
     # view only notes for specific user
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
     data = request.form
-
+    print(request.form)
+    
     if request.method == 'POST':
-        title = request.form['note_title']
-        body = request.form['note_body']
+        empty_title = request.form['note_title'] == ""
+        empty_body = request.form['note_body'] == ""
+        empty_tag_name = request.form['new_tag_name'] == ""
 
-        if len(title) == 0:
-            title = "New Note"
+        if request.form.get('button') == 'tag_button' and not empty_tag_name:
+            tag_name = request.form['new_tag_name']
+            if not bool(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all()):
+                print('in here!')
+                new_tag = Tag(title=tag_name, user_id=login_session['id'])
+                db.session.add(new_tag)
+                db.session.commit()
+            print(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all())
+        elif request.form.get('button') == 'save_note_button':
 
-        new_note = Note(title=title, body=body, user_id = login_session['id'])
-        db.session.add(new_note)
-        db.session.commit()
+            title = "New Note" if empty_title else request.form['note_title']
+            body = "Note body goes here!" if empty_title else request.form['note_body']
 
-        # update noteview after new note is created
-        notes = Note.query.filter(Note.user_id == login_session['id']).all()
-        noteIDs[new_note.id] = title
-        
+            new_note = Note(title=title, body=body, user_id = login_session['id'])
+            db.session.add(new_note)
+            db.session.commit()
+            # update noteview after new note is created
+            notes = Note.query.filter(Note.user_id == login_session['id']).all()
+            noteIDs[new_note.id] = title
+            if empty_title:
+                del title
+            if empty_body:
+                del body
+            print("save button")
+    print('here')
+    tags = {}
+    for n in notes:
+        tags[n.id] = db.session.execute(db.select(Tag).join(NoteTag, NoteTag.id == n.id)).all()
+    print(tags)
     return render_template('home.html', **locals())
 
 @flask_obj.route('/options')

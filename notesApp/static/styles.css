@@ -6,6 +6,7 @@ body {
     height: 100%;
     margin: 0;
     background-color: rgb(15, 15, 15);
+    color: lightgray;
 }
 
 /* dashboard notes view css */
@@ -220,7 +221,9 @@ li, a, button{
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    flex-wrap: wrap;
     gap: 1em;
+    row-gap: 0em;
 }
 
 #tag_end {

@@ -58,18 +58,18 @@
 
         <div class="notes__preview" name="notes__preview">
             <form action=/home method="post">
-                <input id=note_title name="note_title" class="notes__title" type="text" placeholder="Enter a title...">
+                <input id=note_title name="note_title" class="notes__title" type="text" value="{{ title }}" placeholder="Enter a title...">
                 <div id="taglist">
                     {% for tag in tags %}
-                    <div class="tag">tag.title</div>
+                    <div class="tag">{{ tag.title }}</div>
                     {% endfor %}
                     <div id="tag_end">
-                        <input id="add_tag" class="tag" type="text" placeholder="New Tag">
-                        <button id="add_tag_button" class="tag" type="submit" formaction="/">+</button>
+                        <input id="add_tag" class="tag" type="text" name="new_tag_name" value="{{ tagName }}"placeholder="New Tag">
+                        <button id="add_tag_button" class="tag" type="submit" name="button" value="tag_button">+</button>
                     </div>
                     
                 </div>
-                <textarea name="note_body" class="notes__body" placeholder="I am the note's body..."></textarea>
+                <textarea name="note_body" class="notes__body" value="{{ body }}" placeholder="I am the note's body..."></textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
                     textarea.addEventListener('input', autoResize, false);
@@ -79,7 +79,7 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 </script>
-                <button type="submit" class="notes__save" onsubmit="">Save Note</button>
+                <button type="submit" class="notes__save" name="button" value="save_note_button">Save Note</button>
             </form>
         </div>
 
