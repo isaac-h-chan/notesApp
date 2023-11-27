@@ -8,7 +8,7 @@
     <title>Notes App</title>
     <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -43,23 +43,37 @@
     <div class="notes">
         <div class="notes__sidebar">
             <button class="notes__add">New Note</button>
-            <div class="notes__list" id="notes__list">
-                {% for note in notes %}
-                <div class="notes__list-item" tabindex="-1">
-                    <div class="notes__small-title" style="display: none;">{{note.title}}</div>
-                    <div class="notes__small-title">{{note.title | truncate(30, true, '...',0)}}</div>
-                    <div class="notes__small-body" style="display: none;">{{note.body}}</div>
-                    <div class="notes__small-body">{{note.body | truncate(45, true,'...',0)}}</div>
-                    <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+            <form action="/home" method="GET" id="form1" name="form1">
+                <div class="notes__list" id="notes__list">
+                    {% for note in notes %}
+                    <div class="notes__list-item" id="notes__list-item{{ loop.index }}" tabindex="-1" type="submit">
+                        <div class="notes__small-title">{{note.title | truncate(30, true, '...',0)}}</div>
+                        <div class="notes__small-body">{{note.body | truncate(45, true,'...',0)}}</div>
+                        <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                    </div>
+                    {% endfor %}
+                    <input class="clicked" id="clicked" name="clicked" type="hidden">
                 </div>
-                {% endfor %}
-            </div>
+            </form>
         </div>
 
         <div class="notes__preview" name="notes__preview">
             <form action=/home method="post">
-                <input id=note_title name="note_title" class="notes__title" type="text" placeholder="Enter a title...">
-                <textarea name="note_body" class="notes__body" placeholder="I am the note's body..."></textarea>
+                <input id=note_title name="note_title" class="notes__title" type="text" value="{{ selected_title }}"
+                    placeholder="Enter a title...">
+                <div id="taglist">
+                    {% for tag in tags %}
+                    <div class="tag">{{ tag.title }}</div>
+                    {% endfor %}
+                    <div id="tag_end">
+                        <input id="add_tag" class="tag" type="text" name="new_tag_name" value="{{ tagName }}"
+                            placeholder="New Tag">
+                        <button id="add_tag_button" class="tag" type="submit" name="button"
+                            value="tag_button">+</button>
+                    </div>
+
+                </div>
+                <textarea name="note_body" class="notes__body" placeholder="I am the note's body...">{{ selected_body }}</textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
                     textarea.addEventListener('input', autoResize, false);
@@ -69,23 +83,38 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 </script>
-                <button type="submit" class="notes__save">Save Note</button>
+                <button type="submit" class="notes__save" name="button" value="save_note_button">Save Note</button>
             </form>
         </div>
 
         <script>
-            // updates note view on note click
-            $('.notes__list-item').click(function (title, body) {
-                $('.notes__title').val($(this).find(".notes__small-title").html());
-                $('.notes__preview textarea').html($(this).find(".notes__small-body").html());
+            $('.notes__list-item').click(function (event) {
+                event.preventDefault();
+                var index = $(this).attr('id').replace('notes__list-item', '');
+                var form = document.createElement('form');
+                form.action = '/home';
+                form.method = 'GET';
+
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'clicked';
+                input.value = index;
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
             });
 
-            // opens view for creating new note
             $('.notes__add').click(function (title, body) {
-                var titleText = $(this).find(".notes__title").html();
-                $('#note_title').val(titleText);
+                $('#note_title').val($(this).find(".notes__title").html());
                 $('.notes__preview textarea').html($(this).find(".notes__body"));
             })
+
+            const add_tag = document.getElementById("add_tag");
+            add_tag.addEventListener('input', (e) => {
+                e.target.style.width = e.target.value.length + "ch";
+            });
         </script>
     </div>
 </body>

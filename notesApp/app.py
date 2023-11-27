@@ -4,8 +4,7 @@ from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
-
-noteIDs = {}
+from sqlalchemy import func
 
 @flask_obj.route('/')
 def login():
@@ -77,22 +76,81 @@ def password_reset_confirmation():
 
 @flask_obj.route('/home', methods=['GET', 'POST'])
 def home():
+    note_tuples = []
+    first = 0
     # view only notes for specific user
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
+    note_tuples.clear()
+    for note in notes:
+        note_tuples.append((note.id, note.body))
+
     data = request.form
-
+    print(request.form)
+    
     if request.method == 'POST':
-        title = request.form['note_title']
-        body = request.form['note_body']
 
-        new_note = Note(title=title, body=body, user_id = login_session['id'])
-        db.session.add(new_note)
-        db.session.commit()
+        empty_title = request.form['note_title'] == ""
+        empty_body = request.form['note_body'] == ""
+        empty_tag_name = request.form['new_tag_name'] == ""
 
-        # update noteview after new note is created
-        notes = Note.query.filter(Note.user_id == login_session['id']).all()
-        noteIDs[new_note.id] = title
+        if request.form.get('button') == 'tag_button' and not empty_tag_name:
+            tag_name = request.form['new_tag_name']
+            if not bool(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all()):
+                print('in here!')
+                new_tag = Tag(title=tag_name, user_id=login_session['id'])
+                db.session.add(new_tag)
+                db.session.commit()
+            print(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all())
+        elif request.form.get('button') == 'save_note_button':
+            title = "New Note" if empty_title else request.form['note_title']
+            body = "Note body goes here!" if empty_title else request.form['note_body']
+
+            new_note = Note(title=title, body=body, user_id = login_session['id'])
+            db.session.add(new_note)
+            db.session.commit()
+
+            note_tuples.append((new_note.id, new_note.body))
+
+            # if (len(Note.query.filter(Note.user_id == login_session['id']).all())) == 1:
+            #     first_note = new_note.id
+            #     first = first_note
+
+            # update noteview after new note is created
+            notes = Note.query.filter(Note.user_id == login_session['id']).all()
+
+            if empty_title:
+                del title
+            if empty_body:
+                del body
+            print("save button")
         
+        num_notes = db.session.query(func.count(Note.id)).scalar()
+
+    print('here')
+    tags = {}
+    for n in notes:
+        tags[n.id] = db.session.execute(db.select(Tag).join(NoteTag, NoteTag.id == n.id)).all()
+    print(tags)
+
+    if len(note_tuples) != 0:
+        first = note_tuples[0][0]
+
+    if (request.method == 'GET'):
+        clicked_note = request.args.get('clicked', default=0, type=int)
+        selected_notes = Note.query.filter(Note.id == (clicked_note) + first - 1).all()
+        
+        for selected_note in selected_notes:
+        
+            if clicked_note:
+                selected_title = selected_note.title
+                selected_body = selected_note.body
+            else:
+                selected_title = "Note not found"
+                selected_body = ""
+
+    # TO RETRIEVE CLICKED NOTE'S ID, FETCH: clicked_note = request.args.get('clicked', default=0, type=int)
+    # THEN USE THE FOLLOWING FORMULA: (clicked_note) + first - 1
+
     return render_template('home.html', **locals())
 
 @flask_obj.route('/options')
