@@ -1,10 +1,11 @@
 # app.py
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, jsonify
 from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+import json
 
 @flask_obj.route('/')
 def login():
@@ -83,9 +84,7 @@ def home():
     note_tuples.clear()
     for note in notes:
         note_tuples.append((note.id, note.body))
-
     data = request.form
-    print(request.form)
     
     if request.method == 'POST':
 
@@ -93,15 +92,7 @@ def home():
         empty_body = request.form['note_body'] == ""
         empty_tag_name = request.form['new_tag_name'] == ""
 
-        if request.form.get('button') == 'tag_button' and not empty_tag_name:
-            tag_name = request.form['new_tag_name']
-            if not bool(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all()):
-                print('in here!')
-                new_tag = Tag(title=tag_name, user_id=login_session['id'])
-                db.session.add(new_tag)
-                db.session.commit()
-            print(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all())
-        elif request.form.get('button') == 'save_note_button':
+        if request.form.get('button') == 'save_note_button':
             title = "New Note" if empty_title else request.form['note_title']
             body = "Note body goes here!" if empty_title else request.form['note_body']
 
@@ -122,36 +113,52 @@ def home():
                 del title
             if empty_body:
                 del body
-            print("save button")
         
         num_notes = db.session.query(func.count(Note.id)).scalar()
-
-    print('here')
-    tags = {}
-    for n in notes:
-        tags[n.id] = db.session.execute(db.select(Tag).join(NoteTag, NoteTag.id == n.id)).all()
-    print(tags)
 
     if len(note_tuples) != 0:
         first = note_tuples[0][0]
 
     if (request.method == 'GET'):
         clicked_note = request.args.get('clicked', default=0, type=int)
-        selected_notes = Note.query.filter(Note.id == (clicked_note) + first - 1).all()
-        
-        for selected_note in selected_notes:
-        
-            if clicked_note:
-                selected_title = selected_note.title
-                selected_body = selected_note.body
-            else:
-                selected_title = "Note not found"
-                selected_body = ""
+        selected_note_id = (clicked_note) + first - 1 
+        selected_note = Note.query.filter(Note.id == selected_note_id).all()[0]
+        if clicked_note:
+            selected_title = selected_note.title
+            selected_body = selected_note.body
+            tags = db.session.execute(db.select(Tag).join(NoteTag, NoteTag.note_id == selected_note_id)).all()
+            print(tags)
+        else:
+            selected_title = "Note not found"
+            selected_body = ""
 
     # TO RETRIEVE CLICKED NOTE'S ID, FETCH: clicked_note = request.args.get('clicked', default=0, type=int)
     # THEN USE THE FOLLOWING FORMULA: (clicked_note) + first - 1
 
     return render_template('home.html', **locals())
+
+@flask_obj.route("/add_tag", methods=["POST"])
+def add_tag():
+    print(request.json)
+    selected_note_id = request.json.get("selected_note_id")
+    tag_name = request.json.get("tag_name")
+    if not bool(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all()):
+        tag = Tag(title=tag_name, user_id=login_session['id'])
+        db.session.add(tag)
+        db.session.commit()
+    else:
+        tag = db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id == login_session['id']))).scalar()
+    
+    if not bool(db.session.execute(db.select(NoteTag).where((NoteTag.note_id==selected_note_id) & (NoteTag.tag_id==tag.id))).all()):
+        noteTag = NoteTag(note_id=selected_note_id, tag_id=tag.id)
+        db.session.add(noteTag)
+        db.session.commit()
+    
+    response = {
+        "tag_id": tag.id,
+        "tag_name": tag.title
+    }
+    return jsonify(response)
 
 @flask_obj.route('/options')
 def options():
