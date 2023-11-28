@@ -57,7 +57,7 @@
             </form>
         </div>
 
-        <div id="notes__preview" class="notes__preview" name="notes__preview" selected_note_id="{{ selected_note_id }}">
+        <div id="notes__preview" class="notes__preview" name="notes__preview" selected_note_id="0">
             <form action=/home method="post">
                 <input id=note_title name="note_title" class="notes__title" type="text" value="{{ selected_title }}"
                     placeholder="Enter a title...">
@@ -80,50 +80,80 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 </script>
-                <button type="submit" class="notes__save" name="button" value="save_note_button">Save Note</button>
+                <button type="button" class="notes__save" name="button" onclick="handleSaveNote()" value="save_note_button">Save Note</button>
             </form>
         </div>
 
         <script>
+            function makeNotesListClickable() {
+                let divs = document.getElementsByClassName("notes__list-item");
 
-            let divs = document.getElementsByClassName("notes__list-item");
-
-            for (const div of divs) {
-                div.addEventListener('click', () => {
-                    let note_id = parseInt(div.getAttribute('id').slice(4));
-                    fetch("/get_note/" + note_id, {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        document.getElementById("taglist").style.display = "flex";
-                        document.getElementById("tags").style.display = "flex";
-                        document.getElementById("tags").style.marginRight = (data["tags"].length) ? "1em" : "0em";
-                        document.getElementById("note_title").value = data["selected_title"];
-                        document.getElementById("note_body").value = data["selected_body"]
-                        document.getElementById("notes__preview").selected_note_id = data["id"];
-                        let tags_ = document.getElementById("tags");
-                        tags_.replaceChildren();
-                        for (const tag of data["tags"]) {
-                            tags_.innerHTML += `<li class='tag' tag_id=${tag[0]}>${tag[1]}</li>`;
-                        }
+                for (const div of divs) {
+                    div.addEventListener('click', () => {
+                        let note_id = parseInt(div.getAttribute('id').slice(4));
+                        fetch("/get_note/" + note_id, {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
                         })
-                    .catch(error => {
-                        console.error("Error making call " + error);
-                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            document.getElementById("taglist").style.display = "flex";
+                            document.getElementById("tags").style.display = "flex";
+                            document.getElementById("tags").style.marginRight = (data["tags"].length) ? "1em" : "0em";
+                            document.getElementById("note_title").value = data["selected_title"];
+                            document.getElementById("note_body").value = data["selected_body"]
+                            document.getElementById("notes__preview").selected_note_id = data["id"];
+                            let tags_ = document.getElementById("tags");
+                            tags_.replaceChildren();
+                            for (const tag of data["tags"]) {
+                                tags_.innerHTML += `<li class='tag' tag_id=${tag[0]}>${tag[1]}</li>`;
+                            }
+                            })
+                        .catch(error => {
+                            console.error("Error making call " + error);
+                        })
+                    });
+                }
+            }
+
+            makeNotesListClickable()
+
+
+            function handleSaveNote() {
+                let note_title = document.getElementById("note_title").value;
+                let note_body = document.getElementById("note_body").value;
+                let note_id = document.getElementById("notes__preview").selected_note_id || 0;
+                fetch("/save/" + note_id, {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": 'application/json'
+                    },
+                    body: JSON.stringify({
+                        note_title: note_title,
+                        note_body: note_body
+                    })}
+                )
+                .then(response => response.json())
+                .then(data => {
+                    if (data['new']) {
+                        let l = document.getElementById("notes__list");
+                        document.getElementById("notes__preview").selected_note_id = data['note_id'];
+                        l.innerHTML += `<div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
+                                            <div class="notes__small-title">${data['note_title'].slice(0, 30)}</div>
+                                            <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
+                                            <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                                        </div>`;
+                        makeNotesListClickable();
+                    }
+                })
+                .catch(error => {
+                    console.log("Error " + error);
                 });
             }
 
-            /* 
-            $('.notes__add').click(function (title, body) {
-                $('#note_title').val($(this).find(".notes__title").html());
-                $('.notes__preview textarea').html($(this).find(".notes__body"));
-            })
-            */ 
 
             function handleNewNote() {
                 // clear tags and make them disappear
@@ -136,6 +166,7 @@
                 //clear title and body fields for new note
                 document.getElementById("note_title").value = null;
                 document.getElementById("note_body").value = null;
+                document.getElementById("notes__preview").selected_note_id = "0";
             }
 
             function handleAddTag() {
@@ -146,7 +177,7 @@
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json'
-                    }, 
+                    },
                     body: JSON.stringify({
                         selected_note_id: selected_note_id,
                         tag_name: tag_name
