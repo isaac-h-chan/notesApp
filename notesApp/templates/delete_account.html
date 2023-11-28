@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Delete Account</title>
+    <link rel="stylesheet" href="../static/styles.css"> <!-- Adjust the path based on your directory structure -->
+</head>
+<body>
+
+    <div id="confirmationModal">
+        <p>Are you sure you want to delete your account?</p>
+        <button onclick="confirmDeletion()">Yes</button>
+        <button onclick="cancelDeletion()">No</button>
+    </div>
+
+    <script>
+        function showConfirmation() {
+            document.getElementById('confirmationModal').style.display = 'block';
+        }
+
+        function confirmDeletion() {
+            document.forms["deleteForm"].submit();
+        }
+
+        function cancelDeletion() {
+            document.getElementById('confirmationModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
