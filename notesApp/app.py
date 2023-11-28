@@ -207,12 +207,6 @@ def update_profile():
 
     return render_template('update_profile.html')
 
-@flask_obj.route('/profile_updated')
-def profile_updated():
-    print("User profile updated successfully!") 
-    return render_template('home.html')
-
-
 def convert_to_pdf(title, body, pdf_filename):
 
     # Construct the full path for the PDF file
@@ -235,7 +229,3 @@ def convert(note_id):
     pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
     convert_to_pdf(title, body, pdf_path)
     return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
-
-
-if __name__ == "__main__":
-    flask_obj.run(debug=True)
