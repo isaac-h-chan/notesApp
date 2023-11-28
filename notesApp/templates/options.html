@@ -7,14 +7,16 @@
     <link rel="stylesheet" href="../static/styles.css">
     <title>Options</title>
 </head>
-<a href="/home.html"><button>Back</button></a>
+<a href="/home"><button>Back</button></a>
 <body>
     <div class="options-container">
         <div class="option-box" onclick="deleteAllNotes()">Delete all notes</div>
         <div class="option-box" onclick="changeCredentials()">Change username or password</div>
-        <div class="option-box" onclick="deleteAccount()">Delete your account</div>
+        <form action="/confirm_delete_account" method="post" id="deleteForm">
+            <input type="submit" class="option-link" value="Delete Account">
+        </form>
         <div class="option-box" onclick="changeLanguage()">Change language</div>
-        <a href="/login.html" class="option-box">Log Out</a>
+        <a href="/" class="option-box">Log Out</a>
     </div>
 </body>
 </html>
