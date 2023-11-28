@@ -45,10 +45,10 @@
             <button class="notes__add">New Note</button>
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
-                    {% for note in notes %}
-                    <div class="notes__list-item" id="notes__list-item{{ loop.index }}" tabindex="-1" type="submit">
-                        <div class="notes__small-title">{{note.title | truncate(30, true, '...',0)}}</div>
-                        <div class="notes__small-body">{{note.body | truncate(45, true,'...',0)}}</div>
+                    {% for tuple in note_tuples %}
+                    <div class="notes__list-item" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
+                        <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
+                        <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
                         <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
                     </div>
                     {% endfor %}
@@ -75,7 +75,7 @@
                     </div>
 
                 </div>
-                <textarea name="note_body" class="notes__body" placeholder="I am the note's body...">{{ selected_body }}</textarea>
+                <textarea id="note_body" name="note_body" class="notes__body" placeholder="I am the note's body...">{{ selected_body }}</textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
                     textarea.addEventListener('input', autoResize, false);
@@ -90,23 +90,28 @@
         </div>
 
         <script>
-            $('.notes__list-item').click(function (event) {
-                event.preventDefault();
-                var index = $(this).attr('id').replace('notes__list-item', '');
-                var form = document.createElement('form');
-                form.action = '/home';
-                form.method = 'GET';
 
-                var input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'clicked';
-                input.value = index;
+            let divs = document.getElementsByClassName("notes__list-item");
 
-                form.appendChild(input);
-                document.body.appendChild(form);
-                form.submit();
-                document.body.removeChild(form);
-            });
+            for (const div of divs) {
+                div.addEventListener('click', () => {
+                    let note_id = parseInt(div.getAttribute('id').slice(4));
+                    fetch("/get_note/" + note_id, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("note_title").value = data["selected_title"];
+                        document.getElementById("note_body").value = data["selected_body"];
+                        })
+                    .catch(error => {
+                        console.error("Error making call " + error);
+                    })
+                });
+            }
 
             $('.notes__add').click(function (title, body) {
                 $('#note_title').val($(this).find(".notes__title").html());
@@ -115,13 +120,14 @@
 
             async function handleAddTag() {
                 const tag_name = document.getElementById("add_tag").value;
+                let selected_note_id = "{{ selected_note_id }}";
                 response = await fetch("/add_tag", {
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json'
                     }, 
                     body: JSON.stringify({
-                        selected_note_id: {{ selected_note_id }},
+                        selected_note_id: selected_note_id,
                         tag_name: tag_name
                     })}
                 ).then(response => response.json()

@@ -81,61 +81,51 @@ def home():
     first = 0
     # view only notes for specific user
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
-    note_tuples.clear()
     for note in notes:
-        note_tuples.append((note.id, note.body))
-    data = request.form
-    
+        note_tuples.append((note.id, note.title, note.body))
+
     if request.method == 'POST':
 
         empty_title = request.form['note_title'] == ""
         empty_body = request.form['note_body'] == ""
-        empty_tag_name = request.form['new_tag_name'] == ""
+        
+        title = "New Note" if empty_title else request.form['note_title']
+        body = "Note body goes here!" if empty_title else request.form['note_body']
 
-        if request.form.get('button') == 'save_note_button':
-            title = "New Note" if empty_title else request.form['note_title']
-            body = "Note body goes here!" if empty_title else request.form['note_body']
+        new_note = Note(title=title, body=body, user_id = login_session['id'])
+        db.session.add(new_note)
+        db.session.commit()
 
-            new_note = Note(title=title, body=body, user_id = login_session['id'])
-            db.session.add(new_note)
-            db.session.commit()
+        note_tuples.append((new_note.id, new_note.title, new_note.body))
 
-            note_tuples.append((new_note.id, new_note.body))
+        # if (len(Note.query.filter(Note.user_id == login_session['id']).all())) == 1:
+        #     first_note = new_note.id
+        #     first = first_note
 
-            # if (len(Note.query.filter(Note.user_id == login_session['id']).all())) == 1:
-            #     first_note = new_note.id
-            #     first = first_note
+        # update noteview after new note is created
+        notes = Note.query.filter(Note.user_id == login_session['id']).all()
 
-            # update noteview after new note is created
-            notes = Note.query.filter(Note.user_id == login_session['id']).all()
-
-            if empty_title:
-                del title
-            if empty_body:
-                del body
+        if empty_title:
+            del title
+        if empty_body:
+            del body
         
         num_notes = db.session.query(func.count(Note.id)).scalar()
-
-    if len(note_tuples) != 0:
-        first = note_tuples[0][0]
-
-    if (request.method == 'GET'):
-        clicked_note = request.args.get('clicked', default=0, type=int)
-        selected_note_id = (clicked_note) + first - 1 
-        selected_note = Note.query.filter(Note.id == selected_note_id).all()[0]
-        if clicked_note:
-            selected_title = selected_note.title
-            selected_body = selected_note.body
-            tags = db.session.execute(db.select(Tag).join(NoteTag, NoteTag.note_id == selected_note_id)).all()
-            print(tags)
-        else:
-            selected_title = "Note not found"
-            selected_body = ""
 
     # TO RETRIEVE CLICKED NOTE'S ID, FETCH: clicked_note = request.args.get('clicked', default=0, type=int)
     # THEN USE THE FOLLOWING FORMULA: (clicked_note) + first - 1
 
     return render_template('home.html', **locals())
+
+@flask_obj.route("/get_note/<note_id>", methods=["GET"])
+def get_note(note_id):
+    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+    response = {
+        "selected_title": note.title,
+        "selected_body": note.body
+    }
+
+    return jsonify(response)
 
 @flask_obj.route("/add_tag", methods=["POST"])
 def add_tag():
