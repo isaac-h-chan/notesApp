@@ -217,21 +217,29 @@ li, a, button{
 }
 
 #taglist {
-    display: flex;
+    display: none;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1em;
+    gap: 0em;
+    padding: 0;
     row-gap: 0em;
 }
 
 #tag_end {
     display: flex;
-    gap: 3px;
+    gap: 0;
 }
 
-.tag {
+#tags {
+    display: none;
+    margin: 0em;
+    padding: 0em;
+    gap: 1em;
+}
+
+.tag, #add_tag{
     all: initial;
     display: flex;
     flex-direction: column;

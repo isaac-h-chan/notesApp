@@ -42,7 +42,7 @@
     </header>
     <div class="notes">
         <div class="notes__sidebar">
-            <button class="notes__add">New Note</button>
+            <button class="notes__add" onclick="handleNewNote()">New Note</button>
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
                     {% for tuple in note_tuples %}
@@ -57,24 +57,19 @@
             </form>
         </div>
 
-        <div class="notes__preview" name="notes__preview">
+        <div id="notes__preview" class="notes__preview" name="notes__preview" selected_note_id="{{ selected_note_id }}">
             <form action=/home method="post">
                 <input id=note_title name="note_title" class="notes__title" type="text" value="{{ selected_title }}"
                     placeholder="Enter a title...">
                 <div id="taglist">
-                    <div id="tags">
-                        {% for tag in tags %}
-                        <div class="tag">{{ tag.title }}</div>
-                        {% endfor %}
-                    </div>
+                    <ul id="tags">
+                    </ul>
                     <div id="tag_end">
-                        <input id="add_tag" class="tag" type="text" name="new_tag_name" value="{{ tagName }}"
+                        <input id="add_tag" type="text" name="new_tag_name" value="{{ tagName }}"
                             placeholder="New Tag">
                         <button id="add_tag_button" class="tag" type="button" onclick="handleAddTag()" name="button"
                             value="tag_button">+</button>
-                    </div>
-
-                </div>
+                    </div></div>
                 <textarea id="note_body" name="note_body" class="notes__body" placeholder="I am the note's body...">{{ selected_body }}</textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
@@ -104,8 +99,18 @@
                     })
                     .then(response => response.json())
                     .then(data => {
+                        console.log(data);
+                        document.getElementById("taglist").style.display = "flex";
+                        document.getElementById("tags").style.display = "flex";
+                        document.getElementById("tags").style.marginRight = (data["tags"].length) ? "1em" : "0em";
                         document.getElementById("note_title").value = data["selected_title"];
-                        document.getElementById("note_body").value = data["selected_body"];
+                        document.getElementById("note_body").value = data["selected_body"]
+                        document.getElementById("notes__preview").selected_note_id = data["id"];
+                        let tags_ = document.getElementById("tags");
+                        tags_.replaceChildren();
+                        for (const tag of data["tags"]) {
+                            tags_.innerHTML += `<li class='tag' tag_id=${tag[0]}>${tag[1]}</li>`;
+                        }
                         })
                     .catch(error => {
                         console.error("Error making call " + error);
@@ -113,15 +118,31 @@
                 });
             }
 
+            /* 
             $('.notes__add').click(function (title, body) {
                 $('#note_title').val($(this).find(".notes__title").html());
                 $('.notes__preview textarea').html($(this).find(".notes__body"));
             })
+            */ 
 
-            async function handleAddTag() {
+            function handleNewNote() {
+                // clear tags and make them disappear
+                let tags_ = document.getElementById("tags");
+                tags_.replaceChildren();
+                tags_.style.display = "none";
+                document.getElementById("add_tag").value = null;
+                document.getElementById("taglist").style.display = "none";
+
+                //clear title and body fields for new note
+                document.getElementById("note_title").value = null;
+                document.getElementById("note_body").value = null;
+            }
+
+            function handleAddTag() {
                 const tag_name = document.getElementById("add_tag").value;
-                let selected_note_id = "{{ selected_note_id }}";
-                response = await fetch("/add_tag", {
+                document.getElementById("add_tag").value = null;
+                let selected_note_id = document.getElementById("notes__preview").selected_note_id;
+                fetch("/add_tag", {
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json'
@@ -131,7 +152,11 @@
                         tag_name: tag_name
                     })}
                 ).then(response => response.json()
-                ).then(data => console.log(data));
+                ).then(data => {
+                    console.log(data);    
+                    let tags_ = document.getElementById("tags"); 
+                    tags_.innerHTML += `<li class='tag' tag_id=${data['tag_id']}>${data['tag_name']}</li>`;
+                });
             };
 
             const add_tag = document.getElementById("add_tag");

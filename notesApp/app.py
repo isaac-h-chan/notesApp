@@ -77,10 +77,10 @@ def password_reset_confirmation():
 @flask_obj.route('/home', methods=['GET', 'POST'])
 def home():
     note_tuples = []
-    first = 0
     # view only notes for specific user
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
     for note in notes:
+        print(note)
         note_tuples.append((note.id, note.title, note.body))
 
     if request.method == 'POST':
@@ -97,10 +97,6 @@ def home():
 
         note_tuples.append((new_note.id, new_note.title, new_note.body))
 
-        # if (len(Note.query.filter(Note.user_id == login_session['id']).all())) == 1:
-        #     first_note = new_note.id
-        #     first = first_note
-
         # update noteview after new note is created
         notes = Note.query.filter(Note.user_id == login_session['id']).all()
 
@@ -113,19 +109,25 @@ def home():
 
     return render_template('home.html', **locals())
 
-@flask_obj.route("/get_note/<note_id>", methods=["GET"])
+@flask_obj.route("/get_note/<int:note_id>", methods=["GET"])
 def get_note(note_id):
+    print(note_id, type(note_id))
     note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+    tags = []
+    for tag in db.session.execute(db.select(Tag).where((NoteTag.note_id==note_id) & (NoteTag.tag_id==Tag.id) & (Tag.user_id==login_session['id']))).scalars().all():
+        tags.append((tag.id, tag.title))
     response = {
+        "id": note_id,
         "selected_title": note.title,
-        "selected_body": note.body
+        "selected_body": note.body,
+        "tags": tags
     }
+    print(response)
 
     return jsonify(response)
 
 @flask_obj.route("/add_tag", methods=["POST"])
 def add_tag():
-    print(request.json)
     selected_note_id = request.json.get("selected_note_id")
     tag_name = request.json.get("tag_name")
     if not bool(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all()):
@@ -133,6 +135,7 @@ def add_tag():
         db.session.add(tag)
         db.session.commit()
     else:
+        print('already exists')
         tag = db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id == login_session['id']))).scalar()
     
     if not bool(db.session.execute(db.select(NoteTag).where((NoteTag.note_id==selected_note_id) & (NoteTag.tag_id==tag.id))).all()):
