@@ -49,13 +49,13 @@
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
                     {% for tuple in note_tuples %}
+                    <div id="note_bg{{tuple[0]}}" class="note_bg"></div>
                     <div class="notes__list-item" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
                         <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
                         <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
                         <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
                     </div>
                     {% endfor %}
-                    <input class="clicked" id="clicked" name="clicked" type="hidden">
                 </div>
             </form>
         </div>
@@ -72,7 +72,9 @@
                             placeholder="New Tag">
                         <button id="add_tag_button" class="tag" type="button" onclick="handleAddTag()" name="button"
                             value="tag_button">+</button>
-                    </div></div>
+                    </div>
+                    <button id="gen_thumb" type="button" onclick="handleGenThumb()">Generate New Thumbnail</button>
+                </div>
                 <textarea id="note_body" name="note_body" class="notes__body" placeholder="I am the note's body...">{{ selected_body }}</textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
@@ -198,6 +200,29 @@
                     tags_.innerHTML += `<li class='tag' tag_id=${data['tag_id']}>${data['tag_name']}</li>`;
                 });
             };
+
+            function handleGenThumb() {
+                let note_body = document.getElementById("note_body").value;
+                let note_id = document.getElementById("notes__preview").selected_note_id;
+                let btn = document.getElementById("gen_thumb");
+                btn.onclick = "";
+                fetch("/get_thumb/" + note_id, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        note_id: note_id,
+                        note_body: note_body
+                    })}
+                ).then(response => response.json()
+                ).then(data => {
+                    document.getElementById("note"+note_id).style.backgroundImage = null;
+                    document.getElementById("note"+note_id).style.backgroundImage = "url(./" + data["path"] + ")";
+                    console.log(document.getElementById("note"+note_id).style.backgroundImage);
+                });
+                btn.onclick = handleGenThumb;
+            }; 
 
             const add_tag = document.getElementById("add_tag");
             add_tag.addEventListener('input', (e) => {

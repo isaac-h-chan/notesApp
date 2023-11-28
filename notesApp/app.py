@@ -1,5 +1,5 @@
 # app.py
-from flask import render_template, request, redirect, url_for, jsonify
+from flask import render_template, request, redirect, url_for, jsonify, send_file
 from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
@@ -169,9 +169,16 @@ def get_thumb(note_id):
     sen = request.json['note_body']
     generate_image(sen, note_id)
     response = {
-        'path': ".thumbnails/" + str(note_id) + ".png"
+        'path': "thumbnails/" + str(note_id) + ".png"
     }
     return jsonify(response)
+
+@flask_obj.route("/thumbnails/<file>", methods=["GET"])
+def get_image(file):
+    path = "./static/thumbnails/" + file
+    return send_file(path)
+
+
 
 @flask_obj.route('/options')
 def options():
