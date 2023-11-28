@@ -149,6 +149,27 @@ def add_tag():
     }
     return jsonify(response)
 
+@flask_obj.route('/delete', methods=["GET"])
+def go_to_delete():
+    note_tuples = []
+    # view only notes for specific user
+    print(login_session['id'])
+    notes = Note.query.filter(Note.user_id == login_session['id']).all()
+    print(notes)
+    for note in notes:
+        note_tuples.append((note.id, note.title, note.body))
+    print(note_tuples)
+    return render_template("delete.html", note_tuples=note_tuples)
+
+@flask_obj.route('/delete_notes', methods=["DELETE"])
+def delete_notes():
+    data = request.json['notes']
+    for id in data:
+        db.session.execute(db.delete(Note).where(Note.id==id))
+        db.session.execute(db.delete(NoteTag).where(NoteTag.note_id==id))
+    db.session.commit()
+    return jsonify("OK")
+
 @flask_obj.route('/options')
 def options():
     return render_template('options.html')

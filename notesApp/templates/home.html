@@ -43,6 +43,9 @@
     <div class="notes">
         <div class="notes__sidebar">
             <button class="notes__add" onclick="handleNewNote()">New Note</button>
+            <form action="/delete" method="GET">
+                <button type="submit" id="notes__delete">Delete Notes</button>
+            </form>
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
                     {% for tuple in note_tuples %}
@@ -147,6 +150,12 @@
                                             <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
                                         </div>`;
                         makeNotesListClickable();
+                    }
+                    else {
+                        console.log("here")
+                        let side_bar = document.getElementById("note"+note_id);
+                        side_bar.getElementsByClassName("notes__small-title")[0].innerHTML = note_title.slice(0, 30);
+                        side_bar.getElementsByClassName("notes__small-body")[0].innerHTML = note_body.slice(0, 45);
                     }
                 })
                 .catch(error => {
