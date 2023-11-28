@@ -5,7 +5,6 @@ from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
-import json
 
 @flask_obj.route('/')
 def login():
@@ -111,9 +110,6 @@ def home():
             del body
         
         num_notes = db.session.query(func.count(Note.id)).scalar()
-
-    # TO RETRIEVE CLICKED NOTE'S ID, FETCH: clicked_note = request.args.get('clicked', default=0, type=int)
-    # THEN USE THE FOLLOWING FORMULA: (clicked_note) + first - 1
 
     return render_template('home.html', **locals())
 
