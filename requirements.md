@@ -5,7 +5,7 @@
 4. The application must be able to generate images as covers for individual notes using Together API
 5. The user should be able to create a note.
 6. The user should be able to edit a note.
-7. The user should be able to edit a note.
+7. The user should be able to delete a note.
 8. The user should be able to search up notes.
 9. The user should be able to share notes with other users.
 10. The user should be able to lock notes with a passcode.
