@@ -159,3 +159,62 @@ def logout():
     # For now, we'll just redirect to the login page
     del login_session['id']
     return render_template('login.html')
+
+@flask_obj.route('/delete_account', methods=['GET', 'POST'])
+def delete_account():
+    form = DeleteAccountForm()
+
+    if form.validate_on_submit():
+        # Get the current user's ID from the session
+        user_id = login_session.get('id')
+
+        # Query the database to get the user object
+        user = User.query.get(user_id)
+
+        if user:
+            # Delete the user and commit the changes to the database
+            db.session.delete(user)
+            db.session.commit()
+
+            # Logout the user by removing the user ID from the session
+            del login_session['id']
+
+            # Redirect to the login page or any other appropriate page
+            flash('Account successfully deleted.', 'success')
+            return redirect(url_for('login'))
+        else:
+            # Handle the case where the user is not found
+            flash('User not found.', 'danger')
+            return render_template('error.html', error='User not found')
+
+    return render_template('/delete_account.html', form=form)
+
+@flask_obj.route('/confirm_delete_account', methods=['GET', 'POST'])
+def confirm_delete_account():
+    if request.method == 'POST':
+        # Get the current user's ID from the session
+        user_id = login_session.get('id')
+
+        # Query the database to get the user object
+        user = User.query.get(user_id)
+
+        if user:
+            # Delete the user and commit the changes to the database
+            db.session.delete(user)
+            db.session.commit()
+
+            # Logout the user by removing the user ID from the session
+            del login_session['id']
+
+            # Render the confirmation template
+            return render_template('confirm_delete_account.html')
+
+            # Redirect to the login page or any other appropriate page
+            flash('Account successfully deleted.', 'success')
+            return redirect(url_for('login'))
+        else:
+            # Handle the case where the user is not found
+            flash('User not found.', 'danger')
+            return render_template('error.html', error='User not found')
+
+    return render_template('delete_account.html')
