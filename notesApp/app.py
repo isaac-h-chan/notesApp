@@ -80,34 +80,34 @@ def home():
     # view only notes for specific user
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
     for note in notes:
-        print(note)
         note_tuples.append((note.id, note.title, note.body))
+    return render_template('home.html', **locals())
+
+@flask_obj.route('/save/<int:note_id>', methods=["POST"])
+def save_note(note_id):
 
     if request.method == 'POST':
+        if note_id == 0:
+            title = "New Note" if not request.json['note_title'] else request.json['note_title']
+            body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
-        empty_title = request.form['note_title'] == ""
-        empty_body = request.form['note_body'] == ""
-        
-        title = "New Note" if empty_title else request.form['note_title']
-        body = "Note body goes here!" if empty_title else request.form['note_body']
+            new_note = Note(title=title, body=body, user_id = login_session['id'])
+            db.session.add(new_note)
+            db.session.commit()
+            response = {
+                "new": True,
+                "note_title": title,
+                "note_body": body,
+                "note_id": new_note.id
+            }
+        else:
+            db.session.execute(db.update(Note).where(Note.id==note_id).values({Note.title: request.json['note_title'], Note.body: request.json['note_body']}))
+            db.session.commit()
+            response = {
+                "new": False
+            }
+        return jsonify(response)
 
-        new_note = Note(title=title, body=body, user_id = login_session['id'])
-        db.session.add(new_note)
-        db.session.commit()
-
-        note_tuples.append((new_note.id, new_note.title, new_note.body))
-
-        # update noteview after new note is created
-        notes = Note.query.filter(Note.user_id == login_session['id']).all()
-
-        if empty_title:
-            del title
-        if empty_body:
-            del body
-        
-        num_notes = db.session.query(func.count(Note.id)).scalar()
-
-    return render_template('home.html', **locals())
 
 @flask_obj.route("/get_note/<int:note_id>", methods=["GET"])
 def get_note(note_id):
