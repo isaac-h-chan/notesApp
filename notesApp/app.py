@@ -5,6 +5,7 @@ from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from notesApp.thumb import generate_image
 
 @flask_obj.route('/')
 def login():
@@ -111,7 +112,6 @@ def save_note(note_id):
 
 @flask_obj.route("/get_note/<int:note_id>", methods=["GET"])
 def get_note(note_id):
-    print(note_id, type(note_id))
     note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
     tags = []
     for tag in db.session.execute(db.select(Tag).where((NoteTag.note_id==note_id) & (NoteTag.tag_id==Tag.id) & (Tag.user_id==login_session['id']))).scalars().all():
@@ -122,7 +122,6 @@ def get_note(note_id):
         "selected_body": note.body,
         "tags": tags
     }
-    print(response)
 
     return jsonify(response)
 
@@ -135,7 +134,6 @@ def add_tag():
         db.session.add(tag)
         db.session.commit()
     else:
-        print('already exists')
         tag = db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id == login_session['id']))).scalar()
     
     if not bool(db.session.execute(db.select(NoteTag).where((NoteTag.note_id==selected_note_id) & (NoteTag.tag_id==tag.id))).all()):
@@ -152,13 +150,9 @@ def add_tag():
 @flask_obj.route('/delete', methods=["GET"])
 def go_to_delete():
     note_tuples = []
-    # view only notes for specific user
-    print(login_session['id'])
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
-    print(notes)
     for note in notes:
         note_tuples.append((note.id, note.title, note.body))
-    print(note_tuples)
     return render_template("delete.html", note_tuples=note_tuples)
 
 @flask_obj.route('/delete_notes', methods=["DELETE"])
@@ -169,6 +163,15 @@ def delete_notes():
         db.session.execute(db.delete(NoteTag).where(NoteTag.note_id==id))
     db.session.commit()
     return jsonify("OK")
+
+@flask_obj.route('/get_thumb/<int:note_id>', methods=["POST"])
+def get_thumb(note_id):
+    sen = request.json['note_body']
+    generate_image(sen, note_id)
+    response = {
+        'path': ".thumbnails/" + str(note_id) + ".png"
+    }
+    return jsonify(response)
 
 @flask_obj.route('/options')
 def options():
