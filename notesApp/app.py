@@ -164,13 +164,11 @@ def go_to_delete():
 @flask_obj.route('/delete_notes', methods=["DELETE"])
 def delete_notes():
     data = request.json['notes']
-    print('delete request received')
-    print(data)
-    # view only notes for specific user
-    ##for id in data:
-     #   db.session.execute()
-    db.session.commit
-    return jsonify("ok")
+    for id in data:
+        db.session.execute(db.delete(Note).where(Note.id==id))
+        db.session.execute(db.delete(NoteTag).where(NoteTag.note_id==id))
+    db.session.commit()
+    return jsonify("OK")
 
 @flask_obj.route('/options')
 def options():
