@@ -22,13 +22,16 @@ def extract_nouns(sen):
 
 def generate_image(sen, note_id):
     nouns = extract_nouns(sen)
+    print(sen)
     sen = ""
+    print(nouns)
     for noun in nouns:
         sen += noun + ", "
     seed = random.randint(0, 1000)
     if len(sen) == 0:
         sen = "mint"
     # generate image
+    print(sen)
     response = together.Image.create(prompt=sen, height=256, width=256, model="SG161222/Realistic_Vision_V3.0_VAE", seed=seed, steps=10)
     # save the first image
     image = response["output"]["choices"][0]

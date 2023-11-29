@@ -92,7 +92,7 @@ def save_note(note_id):
             title = "New Note" if not request.json['note_title'] else request.json['note_title']
             body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
-            new_note = Note(title=title, body=body, user_id = login_session['id'])
+            new_note = Note(title=title, body=body, user_id = login_session['id'], thumb_url=False)
             db.session.add(new_note)
             db.session.commit()
             response = {
@@ -171,14 +171,15 @@ def get_thumb(note_id):
     response = {
         'path': "thumbnails/" + str(note_id) + ".png"
     }
+    db.session.execute(db.update(Note).where(Note.id==note_id).values({Note.thumb_url: True}))
+    db.session.commit()
     return jsonify(response)
 
 @flask_obj.route("/thumbnails/<file>", methods=["GET"])
 def get_image(file):
+    file = file.split("?")[0]
     path = "./static/thumbnails/" + file
     return send_file(path)
-
-
 
 @flask_obj.route('/options')
 def options():

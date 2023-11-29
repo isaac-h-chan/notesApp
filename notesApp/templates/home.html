@@ -90,6 +90,7 @@
         </div>
 
         <script>
+            
             function makeNotesListClickable() {
                 let divs = document.getElementsByClassName("notes__list-item");
 
@@ -125,7 +126,6 @@
             }
 
             makeNotesListClickable()
-
 
             function handleSaveNote() {
                 let note_title = document.getElementById("note_title").value;
@@ -218,7 +218,7 @@
                 ).then(response => response.json()
                 ).then(data => {
                     document.getElementById("note"+note_id).style.backgroundImage = null;
-                    document.getElementById("note"+note_id).style.backgroundImage = "url(./" + data["path"] + ")";
+                    document.getElementById("note"+note_id).style.backgroundImage = "url(./" + data["path"] + "?" + Math.ceil(Math.random()*100000) +")";
                     console.log(document.getElementById("note"+note_id).style.backgroundImage);
                 });
                 btn.onclick = handleGenThumb;

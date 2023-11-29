@@ -1,5 +1,5 @@
 from notesApp import db
-from sqlalchemy import Integer, String, Text, ForeignKey
+from sqlalchemy import Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import mapped_column, Mapped
 
 class User(db.Model):
@@ -16,11 +16,8 @@ class Note(db.Model):
     title:Mapped[str] = mapped_column(String)
     body:Mapped[str] = mapped_column(Text)
     user_id:Mapped[int] = mapped_column(ForeignKey('user.id'),nullable=False)
+    thumb_url:Mapped[str] = mapped_column(Boolean)
 
-    def __init__(self, title, body, user_id):
-        self.title = title
-        self.body = body
-        self.user_id = user_id
 
 class Tag(db.Model):
     __tablename__ = 'tag'
