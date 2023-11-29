@@ -1,5 +1,5 @@
 # app.py
-from flask import render_template, request, redirect, url_for, jsonify
+from flask import render_template, request, redirect, url_for, jsonify, flash
 from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from flask import Flask, render_template, request
 
-@flask_obj.route('/')
+@flask_obj.route('/', methods=['GET'])
 def login():
     return render_template('login.html')
 
@@ -174,6 +174,33 @@ def delete_notes():
 @flask_obj.route('/options')
 def options():
     return render_template('options.html')
+
+@flask_obj.route('/delete_account', methods=['DELETE'])
+def delete_account():
+    user_to_delete = User.query.filter(User.id == login_session['id']).first()
+    try:
+        # delete all of user's created notes in the db
+        notes = Note.query.filter(Note.user_id == login_session['id']).all()
+        for note in notes:
+            db.session.delete(note)
+        db.session.commit()
+
+        # delete all of user's created tags in the db
+        tags = Tag.query.filter(Tag.user_id == login_session['id']).all()
+        for tag in tags:
+            db.session.delete(tag)
+        db.session.commit()
+
+        # delete user
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        flash("User deleted successfully!", 'success')
+        return jsonify({'status': 'success'})
+    
+    except:
+        db.session.rollback()  # Rollback changes in case of an exception
+        flash("There was an issue deleting the user. Please try again.", 'error')
+        return jsonify({'status': 'error'})
 
 @flask_obj.route('/logout')
 def logout():
