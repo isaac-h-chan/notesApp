@@ -117,17 +117,7 @@ def save_note(note_id):
 
 @flask_obj.route("/get_note/<int:note_id>", methods=["GET"])
 def get_note(note_id):
-    tag_ids = request.args.getlist("tags")
-
-    query = db.session.query(Note).filter(Note.id == note_id)
-
-    if tag_ids:
-        query = query.join(NoteTag).filter(NoteTag.tag_id.in_(tag_ids))
-
-    note = query.scalar()
-
-    # note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
-
+    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar() 
     tags = []
     for tag in db.session.execute(db.select(Tag).where((NoteTag.note_id==note_id) & (NoteTag.tag_id==Tag.id) & (Tag.user_id==login_session['id']))).scalars().all():
         tags.append((tag.id, tag.title))
