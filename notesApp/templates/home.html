@@ -28,7 +28,7 @@
                     </div>
                 </li>
 
-                <li class="dropdown" onclick="updateTags()">
+                <li class="dropdown">
                     <a href="#" class="dropdown-toggle" id="tags-dropdown">
                         <i class="fa-solid fa-tags"></i>
                     </a>
@@ -68,8 +68,7 @@
                             <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
                         </div>
                         {% if tuple[3] %}
-                        <img id="thumb{{ tuple[0] }}" class="notes__list-item thumb"
-                            src="/thumbnails/{{ tuple[0] }}.png">
+                        <img id="thumb{{ tuple[0] }}" class="notes__list-item thumb"src="/thumbnails/{{ tuple[0] }}.png">
                         {% else %}
                         <img id="thumb{{ tuple[0] }}" class="notes__list-item thumb" style="display:none">
                         {% endif %}
@@ -147,7 +146,7 @@
                 }
             }
 
-            makeNotesListClickable()
+            makeNotesListClickable();
 
             function handleSaveNote() {
                 let note_title = document.getElementById("note_title").value;
@@ -241,6 +240,7 @@
 
                     tagsDropdownMenu.appendChild(label);
                     checkbox.addEventListener('change', handleFilterByTag);
+                    
 
                     console.log(data);
                     let tags_ = document.getElementById("tags");
@@ -296,17 +296,29 @@
 
                         // update UI with filtered notes
                         const notesListContainer = document.getElementById("notes__list");
-                        notesListContainer.innerHTML = '';
+                        notesListContainer.innerHTML = null;
 
                         notes.forEach(note => {
-                            notesListContainer.innerHTML += `<div id="pair${note.id}" class="list_pair">
-                                                                <div class="notes__list-item" id="note${note.id}" tabindex="-1" type="submit">
-                                                                    <div class="notes__small-title">${note.title}</div>
-                                                                    <div class="notes__small-body">${note.body.slice(0, 45)}</div>
-                                                                    <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
-                                                                </div>
-                                                                <img id="thumb${note.id}" class="notes__list-item thumb" style="display:none">
-                                                            </div>`;
+                            if (note.thumb) {
+                                notesListContainer.innerHTML += `<div id="pair${note.id}" class="list_pair">
+                                                                    <div class="notes__list-item" id="note${note.id}" tabindex="-1" type="submit">
+                                                                        <div class="notes__small-title">${note.title}</div>
+                                                                        <div class="notes__small-body">${note.body.slice(0, 45)}</div>
+                                                                        <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                                                                    </div>
+                                                                    <img id="thumb${note.id}" class="notes__list-item thumb"src="/thumbnails/${note.id}.png">
+                                                                </div>`;
+                            }
+                            else {
+                                notesListContainer.innerHTML += `<div id="pair${note.id}" class="list_pair">
+                                                                    <div class="notes__list-item" id="note${note.id}" tabindex="-1" type="submit">
+                                                                        <div class="notes__small-title">${note.title}</div>
+                                                                        <div class="notes__small-body">${note.body.slice(0, 45)}</div>
+                                                                        <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                                                                    </div>
+                                                                    <img id="thumb${note.id}" class="notes__list-item thumb" style="display:none">
+                                                                </div>`;
+                            }
                         });
 
                         makeNotesListClickable();

@@ -16,6 +16,7 @@ else:
     ssl._create_default_https_context = _create_unverified_https_context
 
 nltk.download('brown')
+nltk.download('punkt')
 
 def extract_nouns(sen):
     sen = re.sub(r'[^\w\s]','',sen)

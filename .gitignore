@@ -1,5 +1,5 @@
 /.venv
 .DS_Store
-/notesApp/statis/thumbnails
+/notesApp/static/thumbnails
 /notesApp/app.db
 /notesApp/__pycache__
