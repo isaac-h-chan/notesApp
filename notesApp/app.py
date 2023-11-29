@@ -1,11 +1,16 @@
 # app.py
-from flask import render_template, request, redirect, url_for, jsonify, flash
+from flask import render_template, request, redirect, url_for, jsonify, flash, send_file
 from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
+from fpdf import FPDF
+import os
+from notesApp.thumb import generate_image
+import re
+
 
 @flask_obj.route('/', methods=['GET'])
 def login():
@@ -81,7 +86,7 @@ def home():
     # view only notes for specific user
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
     for note in notes:
-        note_tuples.append((note.id, note.title, note.body))
+        note_tuples.append((note.id, note.title, note.body, note.thumb_url))
     return render_template('home.html', **locals())
 
 @flask_obj.route('/save/<int:note_id>', methods=["POST"])
@@ -92,7 +97,7 @@ def save_note(note_id):
             title = "New Note" if not request.json['note_title'] else request.json['note_title']
             body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
-            new_note = Note(title=title, body=body, user_id = login_session['id'])
+            new_note = Note(title=title, body=body, user_id = login_session['id'], thumb_url=False)
             db.session.add(new_note)
             db.session.commit()
             response = {
@@ -112,18 +117,17 @@ def save_note(note_id):
 
 @flask_obj.route("/get_note/<int:note_id>", methods=["GET"])
 def get_note(note_id):
-    print(note_id, type(note_id))
-    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar() 
     tags = []
     for tag in db.session.execute(db.select(Tag).where((NoteTag.note_id==note_id) & (NoteTag.tag_id==Tag.id) & (Tag.user_id==login_session['id']))).scalars().all():
         tags.append((tag.id, tag.title))
+
     response = {
         "id": note_id,
         "selected_title": note.title,
         "selected_body": note.body,
         "tags": tags
     }
-    print(response)
 
     return jsonify(response)
 
@@ -136,7 +140,6 @@ def add_tag():
         db.session.add(tag)
         db.session.commit()
     else:
-        print('already exists')
         tag = db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id == login_session['id']))).scalar()
     
     if not bool(db.session.execute(db.select(NoteTag).where((NoteTag.note_id==selected_note_id) & (NoteTag.tag_id==tag.id))).all()):
@@ -153,13 +156,9 @@ def add_tag():
 @flask_obj.route('/delete', methods=["GET"])
 def go_to_delete():
     note_tuples = []
-    # view only notes for specific user
-    print(login_session['id'])
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
-    print(notes)
     for note in notes:
         note_tuples.append((note.id, note.title, note.body))
-    print(note_tuples)
     return render_template("delete.html", note_tuples=note_tuples)
 
 @flask_obj.route('/delete_notes', methods=["DELETE"])
@@ -170,6 +169,23 @@ def delete_notes():
         db.session.execute(db.delete(NoteTag).where(NoteTag.note_id==id))
     db.session.commit()
     return jsonify("OK")
+
+@flask_obj.route('/get_thumb/<int:note_id>', methods=["POST"])
+def get_thumb(note_id):
+    sen = request.json['note_body']
+    generate_image(sen, note_id)
+    response = {
+        'path': "thumbnails/" + str(note_id) + ".png"
+    }
+    db.session.execute(db.update(Note).where(Note.id==note_id).values({Note.thumb_url: True}))
+    db.session.commit()
+    return jsonify(response)
+
+@flask_obj.route("/thumbnails/<file>", methods=["GET"])
+def get_image(file):
+    file = file.split("?")[0]
+    path = "./static/thumbnails/" + file
+    return send_file(path)
 
 @flask_obj.route('/options')
 def options():
@@ -231,3 +247,25 @@ def update_profile():
 
     return render_template('update_profile.html')
 
+def convert_to_pdf(title, body, pdf_filename):
+
+    # Construct the full path for the PDF file
+    os.makedirs(os.path.dirname(pdf_filename), exist_ok=True)
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, title)
+    pdf.multi_cell(0, 10, body)
+    pdf.output(pdf_filename)
+
+
+@flask_obj.route("/download/<int:note_id>", methods=["POST"])
+def convert(note_id):
+    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+    title = note.title
+    body = note.body
+    pdf_filename = f"{note_id}.pdf"
+    pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
+    convert_to_pdf(title, body, pdf_path)
+    return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
