@@ -81,7 +81,7 @@ def home():
     # view only notes for specific user
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
     for note in notes:
-        note_tuples.append((note.id, note.title, note.body))
+        note_tuples.append((note.id, note.title, note.body, note.thumb_url))
     return render_template('home.html', **locals())
 
 @flask_obj.route('/save/<int:note_id>', methods=["POST"])

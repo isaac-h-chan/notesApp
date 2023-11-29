@@ -49,11 +49,17 @@
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
                     {% for tuple in note_tuples %}
-                    <div id="note_bg{{tuple[0]}}" class="note_bg"></div>
-                    <div class="notes__list-item" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
-                        <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
-                        <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
-                        <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                    <div id="pair{{tuple[0]}}" class="list_pair">
+                        <div class="notes__list-item" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
+                            <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
+                            <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
+                            <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                        </div>
+                        {% if tuple[3] %}
+                        <img id="thumb{{ tuple[0] }}"class="notes__list-item thumb" src="/thumbnails/{{ tuple[0] }}.png">
+                        {% else %}
+                        <img id="thumb{{ tuple[0] }}" class="notes__list-item thumb" style="display:none">
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -90,9 +96,9 @@
         </div>
 
         <script>
-            
+
             function makeNotesListClickable() {
-                let divs = document.getElementsByClassName("notes__list-item");
+                let divs = document.getElementsByClassName("list_pair");
 
                 for (const div of divs) {
                     div.addEventListener('click', () => {
@@ -146,11 +152,14 @@
                     if (data['new']) {
                         let l = document.getElementById("notes__list");
                         document.getElementById("notes__preview").selected_note_id = data['note_id'];
-                        l.innerHTML += `<div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
-                                            <div class="notes__small-title">${data['note_title'].slice(0, 30)}</div>
-                                            <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
-                                            <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
-                                        </div>`;
+                        l.innerHTML += `<div id="pair${data['note_id']}" class="list_pair">
+                                            <div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
+                                                <div class="notes__small-title">${data['note_id']}</div>
+                                                <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
+                                                <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                                            </div>
+                                            <img id="thumb${data['note_id']}" class="notes__list-item thumb" style="display:none">
+                                        </div>`
                         makeNotesListClickable();
                     }
                     else {
@@ -217,9 +226,9 @@
                     })}
                 ).then(response => response.json()
                 ).then(data => {
-                    document.getElementById("note"+note_id).style.backgroundImage = null;
-                    document.getElementById("note"+note_id).style.backgroundImage = "url(./" + data["path"] + "?" + Math.ceil(Math.random()*100000) +")";
-                    console.log(document.getElementById("note"+note_id).style.backgroundImage);
+                    document.getElementById("thumb"+note_id).src = "/" + data["path"] + "?" + Math.ceil(Math.random()*100000);
+                    document.getElementById("thumb"+note_id).style.display = "block";
+                    console.log(document.getElementById("note"+note_id).src);
                 });
                 btn.onclick = handleGenThumb;
             }; 
