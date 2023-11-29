@@ -173,10 +173,6 @@ def delete_notes():
     db.session.commit()
     return jsonify("OK")
 
-@flask_obj.route('/redirect_after_delete', methods=['GET'])
-def redirect_after_delete():
-    return render_template('login.html')
-
 @flask_obj.route('/options')
 def options():
     return render_template('options.html')
