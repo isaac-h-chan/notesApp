@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -39,12 +40,6 @@
                 <li>
                     <a href="/options">
                         <i class="fas fa-bars" aria-hidden="true"></i>
-                    </a>
-                </li>
-
-                <li>
-                    <a class="cta" href="/update_profile">
-                        <button>Update Profile</button>
                     </a>
                 </li>
 
@@ -198,20 +193,8 @@
             function download() {
                 let note_title = document.getElementById("note_title").value;
                 let note_body = document.getElementById("note_body").value;
-                let note_id = document.getElementById("notes__preview").selected_note_id || 0;
-                console.log(1)
-                fetch("/download/" + note_id, {
-                    method: 'POST',
-                    headers: {
-                        "Content-Type": 'application/jsson'
-                    },
-                    body: JSON.stringify({
-                        note_title: note_title,
-                        note_body: note_body
-                    })
-                }
-                )
-
+                let htmlContent =` <h1 style="color: black;">${note_title}</h1><p style="color: black;">${note_body}</p>`;
+                html2pdf().from(htmlContent).save();
             }
 
             function handleNewNote() {
