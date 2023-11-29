@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, send_file
 from fpdf import FPDF
 import os
 from notesApp.thumb import generate_image
+import re
 
 
 @flask_obj.route('/', methods=['GET'])
@@ -116,10 +117,21 @@ def save_note(note_id):
 
 @flask_obj.route("/get_note/<int:note_id>", methods=["GET"])
 def get_note(note_id):
-    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+    tag_ids = request.args.getlist("tags")
+
+    query = db.session.query(Note).filter(Note.id == note_id)
+
+    if tag_ids:
+        query = query.join(NoteTag).filter(NoteTag.tag_id.in_(tag_ids))
+
+    note = query.scalar()
+
+    # note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+
     tags = []
     for tag in db.session.execute(db.select(Tag).where((NoteTag.note_id==note_id) & (NoteTag.tag_id==Tag.id) & (Tag.user_id==login_session['id']))).scalars().all():
         tags.append((tag.id, tag.title))
+
     response = {
         "id": note_id,
         "selected_title": note.title,
@@ -268,3 +280,49 @@ def convert(note_id):
     pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
     convert_to_pdf(title, body, pdf_path)
     return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
+
+@flask_obj.route("/get_tags", methods=['GET'])
+def get_tags():
+    tags = db.session.query(Tag).filter(Tag.user_id == login_session['id']).all()
+
+    tags_list = [
+        {"id": tag.id, "title": tag.title}
+        for tag in tags
+    ]
+
+    return jsonify(tags_list)
+
+@flask_obj.route("/get_notes", methods=["GET"])
+def get_notes():
+    tag_ids = request.args.get("tags")
+
+    if tag_ids:
+        # split selected tag ids into a list using commas as separators
+        tag_ids_list = re.split(',', tag_ids)
+
+        # count the number of matching tags for each note
+        subquery = (
+            db.session.query(Note.id.label("note_id"), func.count(NoteTag.tag_id).label("tag_count"))
+            .join(NoteTag)
+            .filter(Note.id == NoteTag.note_id)
+            .filter(NoteTag.tag_id.in_(tag_ids_list))
+            .group_by(Note.id)
+            .subquery()
+        )
+
+        # filter notes based on the count of matching tags
+        query = (
+            db.session.query(Note)
+            .join(subquery, Note.id == subquery.c.note_id)
+            .filter(subquery.c.tag_count == len(tag_ids_list))
+        )
+
+        notes = query.all()
+        response = [{"id": note.id, "body": note.body, "title": note.title} for note in notes]
+        return jsonify(response)
+    
+    else:
+        # if no tags are selected, return all notes for this user
+        notes = Note.query.filter(Note.user_id == login_session['id'])
+        response = [{"id": note.id, "body": note.body, "title": note.title} for note in notes]
+        return jsonify(response)

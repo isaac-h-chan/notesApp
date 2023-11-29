@@ -8,6 +8,7 @@
     <title>Notes App</title>
     <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 
@@ -26,11 +27,21 @@
                     </div>
                 </li>
 
+                <li class="dropdown" onclick="updateTags()">
+                    <a href="#" class="dropdown-toggle" id="tags-dropdown">
+                        <i class="fa-solid fa-tags"></i>
+                    </a>
+                    <ul class="dropdown-menu" id="tags-dropdown-menu" style="display: none;">
+                        <!-- Tags will be dynamically added here -->
+                    </ul>
+                </li>
+
                 <li>
                     <a href="/options">
                         <i class="fas fa-bars" aria-hidden="true"></i>
                     </a>
                 </li>
+
                 <li>
                     <a class="cta" href="/update_profile">
                         <button>Update Profile</button>
@@ -51,6 +62,10 @@
             <form action="/delete" method="GET">
                 <button type="submit" id="notes__delete">Delete Notes</button>
             </form>
+            <div id="filter_tags">
+
+            </div>
+
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
                     {% for tuple in note_tuples %}
@@ -61,7 +76,8 @@
                             <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
                         </div>
                         {% if tuple[3] %}
-                        <img id="thumb{{ tuple[0] }}"class="notes__list-item thumb" src="/thumbnails/{{ tuple[0] }}.png">
+                        <img id="thumb{{ tuple[0] }}" class="notes__list-item thumb"
+                            src="/thumbnails/{{ tuple[0] }}.png">
                         {% else %}
                         <img id="thumb{{ tuple[0] }}" class="notes__list-item thumb" style="display:none">
                         {% endif %}
@@ -79,14 +95,14 @@
                     <ul id="tags">
                     </ul>
                     <div id="tag_end">
-                        <input id="add_tag" type="text" name="new_tag_name" value="{{ tagName }}"
-                            placeholder="New Tag">
+                        <input id="add_tag" type="text" name="new_tag_name" value="{{ tagName }}" placeholder="New Tag">
                         <button id="add_tag_button" class="tag" type="button" onclick="handleAddTag()" name="button"
                             value="tag_button">+</button>
                     </div>
                     <button id="gen_thumb" type="button" onclick="handleGenThumb()">Generate New Thumbnail</button>
                 </div>
-                <textarea id="note_body" name="note_body" class="notes__body" placeholder="I am the note's body...">{{ selected_body }}</textarea>
+                <textarea id="note_body" name="note_body" class="notes__body"
+                    placeholder="I am the note's body...">{{ selected_body }}</textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
                     textarea.addEventListener('input', autoResize, false);
@@ -96,8 +112,10 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 </script>
-                <button type="button" class="notes__save" name="button" onclick="download()" value="save_note_button">Download</button>
-                <button type="button" class="notes__save" name="button" onclick="handleSaveNote()" value="save_note_button">Save Note</button>
+                <button type="button" class="notes__save" name="button" onclick="download()"
+                    value="save_note_button">Download</button>
+                <button type="button" class="notes__save" name="button" onclick="handleSaveNote()"
+                    value="save_note_button">Save Note</button>
             </form>
         </div>
 
@@ -115,24 +133,24 @@
                                 "Content-Type": "application/json"
                             }
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data);
-                            document.getElementById("taglist").style.display = "flex";
-                            document.getElementById("tags").style.display = "flex";
-                            document.getElementById("tags").style.marginRight = (data["tags"].length) ? "1em" : "0em";
-                            document.getElementById("note_title").value = data["selected_title"];
-                            document.getElementById("note_body").value = data["selected_body"]
-                            document.getElementById("notes__preview").selected_note_id = data["id"];
-                            let tags_ = document.getElementById("tags");
-                            tags_.replaceChildren();
-                            for (const tag of data["tags"]) {
-                                tags_.innerHTML += `<li class='tag' tag_id=${tag[0]}>${tag[1]}</li>`;
-                            }
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+                                document.getElementById("taglist").style.display = "flex";
+                                document.getElementById("tags").style.display = "flex";
+                                document.getElementById("tags").style.marginRight = (data["tags"].length) ? "1em" : "0em";
+                                document.getElementById("note_title").value = data["selected_title"];
+                                document.getElementById("note_body").value = data["selected_body"]
+                                document.getElementById("notes__preview").selected_note_id = data["id"];
+                                let tags_ = document.getElementById("tags");
+                                tags_.replaceChildren();
+                                for (const tag of data["tags"]) {
+                                    tags_.innerHTML += `<li class='tag' tag_id=${tag[0]}>${tag[1]}</li>`;
+                                }
                             })
-                        .catch(error => {
-                            console.error("Error making call " + error);
-                        })
+                            .catch(error => {
+                                console.error("Error making call " + error);
+                            })
                     });
                 }
             }
@@ -151,40 +169,41 @@
                     body: JSON.stringify({
                         note_title: note_title,
                         note_body: note_body
-                    })}
+                    })
+                }
                 )
-                .then(response => response.json())
-                .then(data => {
-                    if (data['new']) {
-                        let l = document.getElementById("notes__list");
-                        document.getElementById("notes__preview").selected_note_id = data['note_id'];
-                        l.innerHTML += `<div id="pair${data['note_id']}" class="list_pair">
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data['new']) {
+                            let l = document.getElementById("notes__list");
+                            document.getElementById("notes__preview").selected_note_id = data['note_id'];
+                            l.innerHTML += `<div id="pair${data['note_id']}" class="list_pair">
                                             <div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
-                                                <div class="notes__small-title">${data['note_id']}</div>
+                                                <div class="notes__small-title">${data['note_title']}</div>
                                                 <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
                                                 <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
                                             </div>
                                             <img id="thumb${data['note_id']}" class="notes__list-item thumb" style="display:none">
                                         </div>`
-                        makeNotesListClickable();
-                    }
-                    else {
-                        console.log("here")
-                        let side_bar = document.getElementById("note"+note_id);
-                        side_bar.getElementsByClassName("notes__small-title")[0].innerHTML = note_title.slice(0, 30);
-                        side_bar.getElementsByClassName("notes__small-body")[0].innerHTML = note_body.slice(0, 45);
-                    }
-                })
-                .catch(error => {
-                    console.log("Error " + error);
-                });
+                            makeNotesListClickable();
+                        }
+                        else {
+                            console.log("here")
+                            let side_bar = document.getElementById("note" + note_id);
+                            side_bar.getElementsByClassName("notes__small-title")[0].innerHTML = note_title.slice(0, 30);
+                            side_bar.getElementsByClassName("notes__small-body")[0].innerHTML = note_body.slice(0, 45);
+                        }
+                    })
+                    .catch(error => {
+                        console.log("Error " + error);
+                    });
             }
             function download() {
                 let note_title = document.getElementById("note_title").value;
                 let note_body = document.getElementById("note_body").value;
                 let note_id = document.getElementById("notes__preview").selected_note_id || 0;
                 console.log(1)
-                fetch("/download/" + note_id , {
+                fetch("/download/" + note_id, {
                     method: 'POST',
                     headers: {
                         "Content-Type": 'application/jsson'
@@ -192,9 +211,10 @@
                     body: JSON.stringify({
                         note_title: note_title,
                         note_body: note_body
-                    })}
+                    })
+                }
                 )
-                
+
             }
 
             function handleNewNote() {
@@ -218,16 +238,32 @@
                 fetch("/add_tag", {
                     method: 'POST',
                     headers: {
-                    'Content-Type': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         selected_note_id: selected_note_id,
                         tag_name: tag_name
-                    })}
+                    })
+                }
                 ).then(response => response.json()
                 ).then(data => {
-                    console.log(data);    
-                    let tags_ = document.getElementById("tags"); 
+                    const tagsDropdownMenu = document.getElementById('tags-dropdown-menu');
+
+                    // dynamically create checkbox for created tag for filters when a new tag is created
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'filter_tags';
+                    checkbox.value = data['tag_id'];
+
+                    const label = document.createElement('label');
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(data['tag_name']));
+
+                    tagsDropdownMenu.appendChild(label);
+                    checkbox.addEventListener('change', handleFilterByTag);
+
+                    console.log(data);
+                    let tags_ = document.getElementById("tags");
                     tags_.innerHTML += `<li class='tag' tag_id=${data['tag_id']}>${data['tag_name']}</li>`;
                 });
             };
@@ -240,25 +276,114 @@
                 fetch("/get_thumb/" + note_id, {
                     method: 'POST',
                     headers: {
-                    'Content-Type': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         note_id: note_id,
                         note_body: note_body
-                    })}
+                    })
+                }
                 ).then(response => response.json()
                 ).then(data => {
-                    document.getElementById("thumb"+note_id).src = "/" + data["path"] + "?" + Math.ceil(Math.random()*100000);
-                    document.getElementById("thumb"+note_id).style.display = "block";
-                    console.log(document.getElementById("note"+note_id).src);
+                    document.getElementById("thumb" + note_id).src = "/" + data["path"] + "?" + Math.ceil(Math.random() * 100000);
+                    document.getElementById("thumb" + note_id).style.display = "block";
+                    console.log(document.getElementById("note" + note_id).src);
                 });
                 btn.onclick = handleGenThumb;
-            }; 
+            };
 
             const add_tag = document.getElementById("add_tag");
             add_tag.addEventListener('input', (e) => {
                 e.target.style.width = e.target.value.length + "ch";
             });
+
+            makeNotesListClickable()
+
+            function handleFilterByTag() {
+                // fetch notes based on selected tags
+                const selectedTags = Array.from(document.querySelectorAll('input[name="filter_tags"]:checked')).map(tag => tag.value);
+
+                // when there is more than one tag selected, add their ids, otherwise param is optional
+                const tagsQueryParam = selectedTags.length > 0 ? `tags=${selectedTags.join(',')}` : '';
+
+                // send data to backend with the selected tag IDs for filtering
+                fetch(`/get_notes?${tagsQueryParam}`, {
+                    method: 'GET',
+                })
+                    .then(response => response.json())
+                    .then(notes => {
+                        console.log("Notes from server:", notes);
+
+                        // update UI with filtered notes
+                        const notesListContainer = document.getElementById("notes__list");
+                        notesListContainer.innerHTML = '';
+
+                        notes.forEach(note => {
+                            notesListContainer.innerHTML += `<div id="pair${note.id}" class="list_pair">
+                                                                <div class="notes__list-item" id="note${note.id}" tabindex="-1" type="submit">
+                                                                    <div class="notes__small-title">${note.title}</div>
+                                                                    <div class="notes__small-body">${note.body.slice(0, 45)}</div>
+                                                                    <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                                                                </div>
+                                                                <img id="thumb${note.id}" class="notes__list-item thumb" style="display:none">
+                                                            </div>`;
+                        });
+
+                        makeNotesListClickable();
+                    })
+                    .catch(error => {
+                        console.log("Error: " + error);
+                    });
+            }
+
+            fetch('/get_tags', {
+                method: 'GET',
+            })
+                .then(response => response.json())
+                .then(tags => {
+                    const tagsDropdownMenu = document.getElementById('tags-dropdown-menu');
+
+                    tags.forEach(tag => {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'filter_tags';
+                        checkbox.value = tag.id;
+
+                        const label = document.createElement('label');
+                        label.appendChild(checkbox);
+                        label.appendChild(document.createTextNode(tag.title));
+
+                        tagsDropdownMenu.appendChild(label);
+                        checkbox.addEventListener('change', handleFilterByTag);
+                    });
+
+                    // toggle visibility of tags dropdown menu on hover
+                    const tagsDropdown = document.getElementById('tags-dropdown');
+
+                    // show menu on hover
+                    tagsDropdown.addEventListener('mouseenter', () => {
+                        tagsDropdownMenu.style.display = 'block';
+                    });
+
+                    // hide menu when mouse leaves icon
+                    tagsDropdown.addEventListener('mouseleave', () => {
+                        tagsDropdownMenu.style.display = 'none';
+                    });
+
+                    // keep menu displayed when hovering over the menu
+                    tagsDropdownMenu.addEventListener('mouseenter', () => {
+                        tagsDropdownMenu.style.display = 'block';
+                    });
+
+                    // hide menu when mouse leaves the menu
+                    tagsDropdownMenu.addEventListener('mouseleave', () => {
+                        tagsDropdownMenu.style.display = 'none';
+                    });
+                    handleFilterByTag();
+                })
+                .catch(error => {
+                    console.log("Error: " + error);
+                });
         </script>
     </div>
 </body>
