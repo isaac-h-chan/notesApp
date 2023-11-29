@@ -72,13 +72,32 @@ body {
     background: rgb(26, 143, 98, 0.8);
 }
 
+.note_bg {
+    background-image: url("./thumbnails/43.png");
+    position: relative;
+    height: 100%;
+}
+.list_pair {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+}
+
+.thumb {
+    height: 128px;
+    width: auto;
+}
+
 .notes__list-item {
+    position: relative;
+    top: 0;
+    left: 0;
     cursor: pointer;
     border-bottom: 1px solid rgb(26, 27, 27);
 }
 
-.notes__list-item:hover,
-.notes__list-item:focus {
+.list_pair:hover,
+.list_pair:focus {
     background: #0a0a0a;
     border-radius: 7px;
     font-weight: bold;

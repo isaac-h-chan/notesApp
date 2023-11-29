@@ -54,13 +54,19 @@
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
                     {% for tuple in note_tuples %}
-                    <div class="notes__list-item" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
-                        <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
-                        <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
-                        <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                    <div id="pair{{tuple[0]}}" class="list_pair">
+                        <div class="notes__list-item" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
+                            <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
+                            <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
+                            <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                        </div>
+                        {% if tuple[3] %}
+                        <img id="thumb{{ tuple[0] }}"class="notes__list-item thumb" src="/thumbnails/{{ tuple[0] }}.png">
+                        {% else %}
+                        <img id="thumb{{ tuple[0] }}" class="notes__list-item thumb" style="display:none">
+                        {% endif %}
                     </div>
                     {% endfor %}
-                    <input class="clicked" id="clicked" name="clicked" type="hidden">
                 </div>
             </form>
         </div>
@@ -77,7 +83,9 @@
                             placeholder="New Tag">
                         <button id="add_tag_button" class="tag" type="button" onclick="handleAddTag()" name="button"
                             value="tag_button">+</button>
-                    </div></div>
+                    </div>
+                    <button id="gen_thumb" type="button" onclick="handleGenThumb()">Generate New Thumbnail</button>
+                </div>
                 <textarea id="note_body" name="note_body" class="notes__body" placeholder="I am the note's body...">{{ selected_body }}</textarea>
                 <script type="text/javascript">
                     textarea = document.querySelector(".notes__body");
@@ -94,8 +102,9 @@
         </div>
 
         <script>
+
             function makeNotesListClickable() {
-                let divs = document.getElementsByClassName("notes__list-item");
+                let divs = document.getElementsByClassName("list_pair");
 
                 for (const div of divs) {
                     div.addEventListener('click', () => {
@@ -130,7 +139,6 @@
 
             makeNotesListClickable()
 
-
             function handleSaveNote() {
                 let note_title = document.getElementById("note_title").value;
                 let note_body = document.getElementById("note_body").value;
@@ -150,11 +158,14 @@
                     if (data['new']) {
                         let l = document.getElementById("notes__list");
                         document.getElementById("notes__preview").selected_note_id = data['note_id'];
-                        l.innerHTML += `<div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
-                                            <div class="notes__small-title">${data['note_title'].slice(0, 30)}</div>
-                                            <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
-                                            <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
-                                        </div>`;
+                        l.innerHTML += `<div id="pair${data['note_id']}" class="list_pair">
+                                            <div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
+                                                <div class="notes__small-title">${data['note_id']}</div>
+                                                <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
+                                                <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                                            </div>
+                                            <img id="thumb${data['note_id']}" class="notes__list-item thumb" style="display:none">
+                                        </div>`
                         makeNotesListClickable();
                     }
                     else {
@@ -220,6 +231,29 @@
                     tags_.innerHTML += `<li class='tag' tag_id=${data['tag_id']}>${data['tag_name']}</li>`;
                 });
             };
+
+            function handleGenThumb() {
+                let note_body = document.getElementById("note_body").value;
+                let note_id = document.getElementById("notes__preview").selected_note_id;
+                let btn = document.getElementById("gen_thumb");
+                btn.onclick = "";
+                fetch("/get_thumb/" + note_id, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        note_id: note_id,
+                        note_body: note_body
+                    })}
+                ).then(response => response.json()
+                ).then(data => {
+                    document.getElementById("thumb"+note_id).src = "/" + data["path"] + "?" + Math.ceil(Math.random()*100000);
+                    document.getElementById("thumb"+note_id).style.display = "block";
+                    console.log(document.getElementById("note"+note_id).src);
+                });
+                btn.onclick = handleGenThumb;
+            }; 
 
             const add_tag = document.getElementById("add_tag");
             add_tag.addEventListener('input', (e) => {
