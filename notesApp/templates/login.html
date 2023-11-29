@@ -1,13 +1,25 @@
 <!-- login.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
     <title>Notes App Login</title>
 </head>
+
 <body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="flashes">
+        {% for message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
     <div class="login-container">
         <h1>Notes App</h1>
         <form action="/login" method="POST">
@@ -15,7 +27,7 @@
             <input type="text" id="email" name="email" required>
 
             {% if error1 %}
-                <p class="error" style="color: red">{{ error1 }}</p>
+            <p class="error" style="color: red">{{ error1 }}</p>
             {% endif %}
 
             <label for="password">Password:</label>
@@ -24,7 +36,7 @@
             <button type="submit">Login</button>
 
             {% if error2 %}
-                <p class="error" style="color: red;">{{ error2 }}</p>
+            <p class="error" style="color: red;">{{ error2 }}</p>
             {% endif %}
         </form>
 
@@ -34,4 +46,5 @@
 
     </div>
 </body>
+
 </html>
