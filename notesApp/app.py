@@ -5,9 +5,7 @@ from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
-from flask import Flask, render_template, request, send_file
-from fpdf import FPDF
-import os
+from flask import Flask, render_template, request
 
 @flask_obj.route('/')
 def login():
@@ -185,15 +183,14 @@ def logout():
     return render_template('login.html')
 
 
-# Function to update the user profile
+# Function to update the user profile // Somehow the name did not update
 def update_user_profile(new_name,new_email, new_password):
     user = User.query.filter(User.id == login_session['id']).first()
     if user:
+        user.username = new_name
         user.email = new_email
-        user.name = new_name
         user.password = generate_password_hash(new_password)
         db.session.commit()
-
 #need to update the password on database into hash
 @flask_obj.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():
@@ -207,25 +204,3 @@ def update_profile():
 
     return render_template('update_profile.html')
 
-def convert_to_pdf(title, body, pdf_filename):
-
-    # Construct the full path for the PDF file
-    os.makedirs(os.path.dirname(pdf_filename), exist_ok=True)
-
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, title)
-    pdf.multi_cell(0, 10, body)
-    pdf.output(pdf_filename)
-
-
-@flask_obj.route("/download/<int:note_id>", methods=["POST"])
-def convert(note_id):
-    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
-    title = note.title
-    body = note.body
-    pdf_filename = f"{note_id}.pdf"
-    pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
-    convert_to_pdf(title, body, pdf_path)
-    return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
