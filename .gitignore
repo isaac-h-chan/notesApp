@@ -2,3 +2,4 @@
 .DS_Store
 /notesApp/statis/thumbnails
 /notesApp/app.db
+/notesApp/__pycache__
