@@ -44,23 +44,16 @@
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            // Successful response, redirect to login page
             window.location.href = '/';
         } else {
-            // Handle error response
             console.error('Failed to delete account');
             throw new Error('Failed to delete account');
         }
     })
     .catch(error => {
-        // Handle errors during the fetch
         console.error('Error during delete account request:', error);
     });
 }
-
-
-    // // Attach the function to the button click event
-    // document.getElementById('deleteAccountBtn').addEventListener('click', delete_account());
 </script>
 
 </html>
