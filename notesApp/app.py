@@ -1,13 +1,17 @@
 # app.py
-from flask import render_template, request, redirect, url_for, jsonify, send_file
+from flask import render_template, request, redirect, url_for, jsonify, flash, send_file
 from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from flask import Flask, render_template, request, send_file
+from fpdf import FPDF
+import os
 from notesApp.thumb import generate_image
 
-@flask_obj.route('/')
+
+@flask_obj.route('/', methods=['GET'])
 def login():
     return render_template('login.html')
 
@@ -185,9 +189,82 @@ def get_image(file):
 def options():
     return render_template('options.html')
 
+@flask_obj.route('/delete_account', methods=['DELETE'])
+def delete_account():
+    user_to_delete = User.query.filter(User.id == login_session['id']).first()
+    try:
+        # delete all of user's created notes in the db
+        notes = Note.query.filter(Note.user_id == login_session['id']).all()
+        for note in notes:
+            db.session.delete(note)
+        db.session.commit()
+
+        # delete all of user's created tags in the db
+        tags = Tag.query.filter(Tag.user_id == login_session['id']).all()
+        for tag in tags:
+            db.session.delete(tag)
+        db.session.commit()
+
+        # delete user
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        flash("User deleted successfully!", 'success')
+        return jsonify({'status': 'success'})
+    
+    except:
+        db.session.rollback()  # Rollback changes in case of an exception
+        flash("There was an issue deleting the user. Please try again.", 'error')
+        return jsonify({'status': 'error'})
+
 @flask_obj.route('/logout')
 def logout():
     # You can perform any necessary logout logic here
     # For now, we'll just redirect to the login page
     del login_session['id']
     return render_template('login.html')
+
+
+# Function to update the user profile
+def update_user_profile(new_name,new_email, new_password):
+    user = User.query.filter(User.id == login_session['id']).first()
+    if user:
+        user.email = new_email
+        user.name = new_name
+        user.password = generate_password_hash(new_password)
+        db.session.commit()
+
+#need to update the password on database into hash
+@flask_obj.route('/update_profile', methods=['GET', 'POST'])
+def update_profile():
+    if request.method == 'POST':
+        new_name = request.form.get('new_name')
+        new_email = request.form.get('new_email')
+        new_password = request.form.get('new_password')
+
+        update_user_profile(new_name, new_email, new_password)
+        return redirect(url_for('home'))
+
+    return render_template('update_profile.html')
+
+def convert_to_pdf(title, body, pdf_filename):
+
+    # Construct the full path for the PDF file
+    os.makedirs(os.path.dirname(pdf_filename), exist_ok=True)
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, title)
+    pdf.multi_cell(0, 10, body)
+    pdf.output(pdf_filename)
+
+
+@flask_obj.route("/download/<int:note_id>", methods=["POST"])
+def convert(note_id):
+    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+    title = note.title
+    body = note.body
+    pdf_filename = f"{note_id}.pdf"
+    pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
+    convert_to_pdf(title, body, pdf_path)
+    return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
