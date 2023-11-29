@@ -305,13 +305,12 @@ def get_notes():
             .join(subquery, Note.id == subquery.c.note_id)
             .filter(subquery.c.tag_count == len(tag_ids_list))
         )
-
         notes = query.all()
-        response = [{"id": note.id, "body": note.body, "title": note.title} for note in notes]
+        response = [{"id": note.id, "body": note.body, "title": note.title, "thumb": note.thumb_url} for note in notes]
         return jsonify(response)
 
     else:
         # if no tags are selected, return all notes for this user
         notes = Note.query.filter(Note.user_id == login_session['id'])
-        response = [{"id": note.id, "body": note.body, "title": note.title} for note in notes]
+        response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in notes]
         return jsonify(response)
