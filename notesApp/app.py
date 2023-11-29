@@ -269,3 +269,49 @@ def convert(note_id):
     pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
     convert_to_pdf(title, body, pdf_path)
     return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
+
+@flask_obj.route("/get_tags", methods=['GET'])
+def get_tags():
+    tags = db.session.query(Tag).filter(Tag.user_id == login_session['id']).all()
+
+    tags_list = [
+        {"id": tag.id, "title": tag.title}
+        for tag in tags
+    ]
+
+    return jsonify(tags_list)
+
+@flask_obj.route("/get_notes", methods=["GET"])
+def get_notes():
+    tag_ids = request.args.get("tags")
+
+    if tag_ids:
+        # split selected tag ids into a list using commas as separators
+        tag_ids_list = re.split(',', tag_ids)
+
+        # count the number of matching tags for each note
+        subquery = (
+            db.session.query(Note.id.label("note_id"), func.count(NoteTag.tag_id).label("tag_count"))
+            .join(NoteTag)
+            .filter(Note.id == NoteTag.note_id)
+            .filter(NoteTag.tag_id.in_(tag_ids_list))
+            .group_by(Note.id)
+            .subquery()
+        )
+
+        # filter notes based on the count of matching tags
+        query = (
+            db.session.query(Note)
+            .join(subquery, Note.id == subquery.c.note_id)
+            .filter(subquery.c.tag_count == len(tag_ids_list))
+        )
+
+        notes = query.all()
+        response = [{"id": note.id, "body": note.body, "title": note.title} for note in notes]
+        return jsonify(response)
+
+    else:
+        # if no tags are selected, return all notes for this user
+        notes = Note.query.filter(Note.user_id == login_session['id'])
+        response = [{"id": note.id, "body": note.body, "title": note.title} for note in notes]
+        return jsonify(response)
