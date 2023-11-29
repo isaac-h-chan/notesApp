@@ -20,6 +20,30 @@
                 <li>
                     <div class="box">
                         <input type="text" placeholder="Search...">
+                    <script>
+                        function handleSearch(event) {
+                            event.preventDefault(); // Prevent default form submission behavior
+                            let query = document.getElementById("searchQuery").value;
+                            fetch("/search", {
+                                method: 'POST',
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({ search_query: query })
+                            })
+                            .then(response => response.html())
+                            .then(data => {
+                                document.getElementById("searchResults").innerHTML = data;
+                            })
+                            .catch(error => {
+                                console.error("Error making search request: ", error);
+                            });
+                        }
+                    </script>
+                    <form onsubmit="handleSearch(event)">
+                        <input type="text" id="searchQuery" placeholder="Search...">
+                        <button type="submit">Search</button>
+                    </form>
                         <a href="#">
                             <i class="fas fa-search" aria-hidden="true"></i>
                         </a>
