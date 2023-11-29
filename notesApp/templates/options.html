@@ -1,20 +1,66 @@
 <!-- options.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
     <title>Options</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
-<a href="/home.html"><button>Back</button></a>
+<a href="/home"><button>Back</button></a>
+
 <body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="flashes">
+        {% for message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     <div class="options-container">
         <div class="option-box" onclick="deleteAllNotes()">Delete all notes</div>
         <div class="option-box" onclick="changeCredentials()">Change username or password</div>
-        <div class="option-box" onclick="deleteAccount()">Delete your account</div>
         <div class="option-box" onclick="changeLanguage()">Change language</div>
-        <a href="/login.html" class="option-box">Log Out</a>
+        <!-- <a href="/login.html" class="option-box">Log Out</a> -->
+        <div id="deleteacc" class="option-box">
+            <button id="deleteAccountBtn" class="delete_account" type="button" onclick="delete_account()">Delete
+                Account</button>
+        </div>
     </div>
 </body>
+
+<script>
+    function delete_account() {
+    fetch('/delete_account', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Successful response, redirect to login page
+            window.location.href = '/';
+        } else {
+            // Handle error response
+            console.error('Failed to delete account');
+            throw new Error('Failed to delete account');
+        }
+    })
+    .catch(error => {
+        // Handle errors during the fetch
+        console.error('Error during delete account request:', error);
+    });
+}
+
+
+    // // Attach the function to the button click event
+    // document.getElementById('deleteAccountBtn').addEventListener('click', delete_account());
+</script>
+
 </html>
