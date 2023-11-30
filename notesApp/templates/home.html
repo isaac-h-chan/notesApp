@@ -111,10 +111,14 @@
         </div>
 
         <script>
-
+            
+            // add eventListeners to all notes in the note sidebar to update the notes editting area when clicked
             function makeNotesListClickable() {
+                
+                // get all note divs in the sidebar
                 let divs = document.getElementsByClassName("list_pair");
 
+                // add eventListener to each note div
                 for (const div of divs) {
                     div.addEventListener('click', () => {
                         let note_id = parseInt(div.getAttribute('id').slice(4));
@@ -124,34 +128,43 @@
                                 "Content-Type": "application/json"
                             }
                         })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log(data);
-                                document.getElementById("taglist").style.display = "flex";
-                                document.getElementById("tags").style.display = "flex";
-                                document.getElementById("tags").style.marginRight = (data["tags"].length) ? "1em" : "0em";
-                                document.getElementById("note_title").value = data["selected_title"];
-                                document.getElementById("note_body").value = data["selected_body"]
-                                document.getElementById("notes__preview").selected_note_id = data["id"];
-                                let tags_ = document.getElementById("tags");
-                                tags_.replaceChildren();
-                                for (const tag of data["tags"]) {
-                                    tags_.innerHTML += `<li class='tag' tag_id=${tag[0]}>${tag[1]}</li>`;
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error making call " + error);
-                            })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            
+                            // update all html elements for tags and notes editting area with information for the clicked note
+                            document.getElementById("taglist").style.display = "flex";
+                            document.getElementById("tags").style.display = "flex";
+                            document.getElementById("tags").style.marginRight = (data["tags"].length) ? "1em" : "0em";
+                            document.getElementById("note_title").value = data["selected_title"];
+                            document.getElementById("note_body").value = data["selected_body"]
+                            document.getElementById("notes__preview").selected_note_id = data["id"];
+                            let tags_ = document.getElementById("tags");
+                            tags_.replaceChildren();
+                            for (const tag of data["tags"]) {
+                                tags_.innerHTML += `<li class='tag' tag_id=${tag[0]}>${tag[1]}</li>`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error making call " + error);
+                        })
                     });
                 }
             }
 
             makeNotesListClickable();
 
+            // make API call to create or save notes
             function handleSaveNote() {
+
+                // get all required information to send to the API for creating or saving notes
                 let note_title = document.getElementById("note_title").value;
                 let note_body = document.getElementById("note_body").value;
+                
+                // set note_id to 0 if it is new note
                 let note_id = document.getElementById("notes__preview").selected_note_id || 0;
+
+                // make API call
                 fetch("/save/" + note_id, {
                     method: 'POST',
                     headers: {
@@ -163,31 +176,38 @@
                     })
                 }
                 )
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data['new']) {
-                            let l = document.getElementById("notes__list");
-                            document.getElementById("notes__preview").selected_note_id = data['note_id'];
-                            l.innerHTML += `<div id="pair${data['note_id']}" class="list_pair">
-                                            <div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
-                                                <div class="notes__small-title">${data['note_title']}</div>
-                                                <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
-                                                <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
-                                            </div>
-                                            <img id="thumb${data['note_id']}" class="notes__list-item thumb" style="display:none">
-                                        </div>`
-                            makeNotesListClickable();
-                        }
-                        else {
-                            console.log("here")
-                            let side_bar = document.getElementById("note" + note_id);
-                            side_bar.getElementsByClassName("notes__small-title")[0].innerHTML = note_title.slice(0, 30);
-                            side_bar.getElementsByClassName("notes__small-body")[0].innerHTML = note_body.slice(0, 45);
-                        }
-                    })
-                    .catch(error => {
-                        console.log("Error " + error);
-                    });
+                .then(response => response.json())
+                .then(data => {
+
+                    // if a new note is created
+                    if (data['new']) {
+
+                        // update the notes sidebar with a new icon for the new note
+                        let l = document.getElementById("notes__list");
+                        document.getElementById("notes__preview").selected_note_id = data['note_id'];
+                        l.innerHTML += `<div id="pair${data['note_id']}" class="list_pair">
+                                        <div class="notes__list-item" id="note${data['note_id']}" tabindex="-1" type="submit">
+                                            <div class="notes__small-title">${data['note_title']}</div>
+                                            <div class="notes__small-body">${data['note_body'].slice(0, 45)}</div>
+                                            <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
+                                        </div>
+                                        <img id="thumb${data['note_id']}" class="notes__list-item thumb" style="display:none">
+                                    </div>`
+                        makeNotesListClickable();
+                    }
+
+                    // new note was not created
+                    else {
+                        console.log("here")
+                        // update the information contained by the note in the note sidebar
+                        let side_bar = document.getElementById("note" + note_id);
+                        side_bar.getElementsByClassName("notes__small-title")[0].innerHTML = note_title.slice(0, 30);
+                        side_bar.getElementsByClassName("notes__small-body")[0].innerHTML = note_body.slice(0, 45);
+                    }
+                })
+                .catch(error => {
+                    console.log("Error " + error);
+                });
             }
             function download() {
                 let note_title = document.getElementById("note_title").value;
@@ -196,6 +216,7 @@
                 html2pdf().from(htmlContent).save();
             }
 
+            // update all information of preview area whenever user clicks on "New Note"
             function handleNewNote() {
                 // clear tags and make them disappear
                 let tags_ = document.getElementById("tags");
@@ -210,10 +231,15 @@
                 document.getElementById("notes__preview").selected_note_id = "0";
             }
 
+            // handle with user clicks on button to add a new tag
             function handleAddTag() {
+
+                // get appropriate data for creating new tag
                 const tag_name = document.getElementById("add_tag").value;
                 document.getElementById("add_tag").value = null;
                 let selected_note_id = document.getElementById("notes__preview").selected_note_id;
+
+                // make API call to create the tag
                 fetch("/add_tag", {
                     method: 'POST',
                     headers: {
@@ -240,19 +266,26 @@
 
                     tagsDropdownMenu.appendChild(label);
                     checkbox.addEventListener('change', handleFilterByTag);
-                    
 
+                    // add a new tag with the tag name entered by user into the DOM
                     console.log(data);
                     let tags_ = document.getElementById("tags");
                     tags_.innerHTML += `<li class='tag' tag_id=${data['tag_id']}>${data['tag_name']}</li>`;
                 });
             };
-
+            
+            // make API call to generate a new thumbnail for note
             function handleGenThumb() {
+
+                // get note id and note body to send to API
                 let note_body = document.getElementById("note_body").value;
                 let note_id = document.getElementById("notes__preview").selected_note_id;
+
+                // make button do nothing when calling the API so that requests happen one at a time
                 let btn = document.getElementById("gen_thumb");
                 btn.onclick = "";
+
+                // make API call to /get_thumb/<note_id> endpoint
                 fetch("/get_thumb/" + note_id, {
                     method: 'POST',
                     headers: {
@@ -265,13 +298,20 @@
                 }
                 ).then(response => response.json()
                 ).then(data => {
+
+                    // add random numbers to the end of resource url so it is unique and browser does not fetch from cache
                     document.getElementById("thumb" + note_id).src = "/" + data["path"] + "?" + Math.ceil(Math.random() * 100000);
+
+                    // display the img tag if it was set to hidden before
                     document.getElementById("thumb" + note_id).style.display = "block";
                     console.log(document.getElementById("note" + note_id).src);
                 });
+
+                // reset onclick
                 btn.onclick = handleGenThumb;
             };
 
+            // make field to add new tag dynamically resize to fit content
             const add_tag = document.getElementById("add_tag");
             add_tag.addEventListener('input', (e) => {
                 e.target.style.width = e.target.value.length + "ch";
