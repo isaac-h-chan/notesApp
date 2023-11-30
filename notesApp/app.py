@@ -226,7 +226,7 @@ def logout():
     return render_template('login.html')
 
 
-# Function to update the user profile // Somehow the name did not update
+# Function to update the user profile into database
 def update_user_profile(new_name,new_email, new_password):
     user = User.query.filter(User.id == login_session['id']).first()
     if user:
@@ -234,7 +234,8 @@ def update_user_profile(new_name,new_email, new_password):
         user.email = new_email
         user.password = generate_password_hash(new_password)
         db.session.commit()
-#need to update the password on database into hash
+
+#Function to ask user to enter new email, password , and username
 @flask_obj.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():
     if request.method == 'POST':
