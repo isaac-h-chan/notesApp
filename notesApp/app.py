@@ -307,13 +307,15 @@ def convert(note_id):
     convert_to_pdf(title, body, pdf_path)
     return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
   
-
+# gets all notes from db with selected tags and have search query in either title or body
 @flask_obj.route('/search', methods=['GET','POST'])
 def search_notes():
     search_query = request.json['search_query']
-    matching_notes = Note.query.filter(Note.title.ilike(f'%{search_query}%') | Note.body.ilike(f'%{search_query}%')).all()
-    return render_template('search_results.html', notes=matching_notes, query=search_query)
-
+    tag_ids = request.json['tag_ids']
+    notes = filterTags(tag_ids)
+    matching_notes = notes.filter(Note.title.ilike(f'%{search_query}%') | Note.body.ilike(f'%{search_query}%')).all()
+    response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in matching_notes]
+    return jsonify(response)
 
 @flask_obj.route("/get_tags", methods=['GET'])
 def get_tags():
@@ -326,10 +328,8 @@ def get_tags():
 
     return jsonify(tags_list)
 
-@flask_obj.route("/get_notes", methods=["GET"])
-def get_notes():
-    tag_ids = request.args.get("tags")
-
+# returns sqlalchemy query for only notes with the given tags in tags_id
+def filterTags(tag_ids:str):
     if tag_ids:
         # split selected tag ids into a list using commas as separators
         tag_ids_list = re.split(',', tag_ids)
@@ -345,18 +345,21 @@ def get_notes():
         )
 
         # filter notes based on the count of matching tags
-        query = (
+        notes = (
             db.session.query(Note)
             .join(subquery, Note.id == subquery.c.note_id)
             .filter(subquery.c.tag_count == len(tag_ids_list))
         )
-        notes = query.all()
-        response = [{"id": note.id, "body": note.body, "title": note.title, "thumb": note.thumb_url} for note in notes]
-        return jsonify(response)
 
     else:
         # if no tags are selected, return all notes for this user
         notes = Note.query.filter(Note.user_id == login_session['id'])
-        response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in notes]
-        return jsonify(response)
+    return notes
+
+@flask_obj.route("/get_notes", methods=["GET"])
+def get_notes():
+    tag_ids = request.args.get("tags")
+    notes = filterTags(tag_ids).all()
+    response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in notes]
+    return jsonify(response)
      

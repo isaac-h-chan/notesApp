@@ -38,11 +38,11 @@
     </header>
     <div class="notes">
         <div class="notes__sidebar">
-            <button class="notes__add" type="button" onclick="delete_selected()">Delete Selected Notes</button>
+            <button class="notes__delete" type="button" onclick="delete_selected()">Delete Selected Notes</button>
             <form action="/home" method="GET" id="form1" name="form1">
                 <div class="notes__list" id="notes__list">
                     {% for tuple in note_tuples %}
-                    <div class="notes__list-item" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
+                    <div class="notes__list-item dlist_pair" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
                         <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
                         <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
                         <div class="notes__small-updated" id="update">Last Edited Friday 3:00 PM</div>
