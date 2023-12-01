@@ -306,6 +306,14 @@ def convert(note_id):
     pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
     convert_to_pdf(title, body, pdf_path)
     return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
+  
+
+@flask_obj.route('/search', methods=['GET','POST'])
+def search_notes():
+    search_query = request.json['search_query']
+    matching_notes = Note.query.filter(Note.title.ilike(f'%{search_query}%') | Note.body.ilike(f'%{search_query}%')).all()
+    return render_template('search_results.html', notes=matching_notes, query=search_query)
+
 
 @flask_obj.route("/get_tags", methods=['GET'])
 def get_tags():
@@ -351,3 +359,4 @@ def get_notes():
         notes = Note.query.filter(Note.user_id == login_session['id'])
         response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in notes]
         return jsonify(response)
+     
