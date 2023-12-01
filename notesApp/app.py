@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, send_file
 from fpdf import FPDF
 import os
 from notesApp.thumb import generate_image
+import re
 
 
 @flask_obj.route('/', methods=['GET'])
@@ -79,6 +80,7 @@ def forgot_password():
 def password_reset_confirmation():
     return render_template('password_reset_confirmation.html')
 
+# serve home.html to frontend and populate fields with all notes associated with user id
 @flask_obj.route('/home', methods=['GET', 'POST'])
 def home():
     note_tuples = []
@@ -88,11 +90,16 @@ def home():
         note_tuples.append((note.id, note.title, note.body, note.thumb_url))
     return render_template('home.html', **locals())
 
+#save note or create note if it doesnt exist
 @flask_obj.route('/save/<int:note_id>', methods=["POST"])
 def save_note(note_id):
 
     if request.method == 'POST':
+
+        # note_id == 0 means to create a new note
         if note_id == 0:
+
+            # assign default values to note if fields are empty
             title = "New Note" if not request.json['note_title'] else request.json['note_title']
             body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
@@ -105,6 +112,8 @@ def save_note(note_id):
                 "note_body": body,
                 "note_id": new_note.id
             }
+
+        # not a new note, update content of specified note in db
         else:
             db.session.execute(db.update(Note).where(Note.id==note_id).values({Note.title: request.json['note_title'], Note.body: request.json['note_body']}))
             db.session.commit()
@@ -113,13 +122,16 @@ def save_note(note_id):
             }
         return jsonify(response)
 
-
+# get all content associated with a note
 @flask_obj.route("/get_note/<int:note_id>", methods=["GET"])
 def get_note(note_id):
     note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
+
+    # add all tags associated with note to a list
     tags = []
     for tag in db.session.execute(db.select(Tag).where((NoteTag.note_id==note_id) & (NoteTag.tag_id==Tag.id) & (Tag.user_id==login_session['id']))).scalars().all():
         tags.append((tag.id, tag.title))
+
     response = {
         "id": note_id,
         "selected_title": note.title,
@@ -129,17 +141,25 @@ def get_note(note_id):
 
     return jsonify(response)
 
+# create a tag if it doesn't exist and then assign a relationship between tag and note in db
 @flask_obj.route("/add_tag", methods=["POST"])
 def add_tag():
+
+    # get note id and the tag name specified by user
     selected_note_id = request.json.get("selected_note_id")
     tag_name = request.json.get("tag_name")
+
+    # if the tag doesn't exist for the user, create a new tag with tag_name for the user
     if not bool(db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id==login_session['id']))).all()):
         tag = Tag(title=tag_name, user_id=login_session['id'])
         db.session.add(tag)
         db.session.commit()
+    
+    # tag already exists for user so get the tag from db so we can create relationship between note and tag
     else:
         tag = db.session.execute(db.select(Tag).where((Tag.title == tag_name) & (Tag.user_id == login_session['id']))).scalar()
     
+    # if the not does not already have the tag, create a relationship between note and tag
     if not bool(db.session.execute(db.select(NoteTag).where((NoteTag.note_id==selected_note_id) & (NoteTag.tag_id==tag.id))).all()):
         noteTag = NoteTag(note_id=selected_note_id, tag_id=tag.id)
         db.session.add(noteTag)
@@ -151,36 +171,54 @@ def add_tag():
     }
     return jsonify(response)
 
+# redirects the user to a page where notes can be deleted
 @flask_obj.route('/delete', methods=["GET"])
 def go_to_delete():
+
+    # get all notes that belong to the user so that they can be displayed on frontend
     note_tuples = []
     notes = Note.query.filter(Note.user_id == login_session['id']).all()
     for note in notes:
         note_tuples.append((note.id, note.title, note.body))
     return render_template("delete.html", note_tuples=note_tuples)
 
+# deletes specified notes from db
 @flask_obj.route('/delete_notes', methods=["DELETE"])
 def delete_notes():
+
+    # get all note id's of notes to be deleted
     data = request.json['notes']
+
+    # delete each note from the db
     for id in data:
         db.session.execute(db.delete(Note).where(Note.id==id))
         db.session.execute(db.delete(NoteTag).where(NoteTag.note_id==id))
     db.session.commit()
     return jsonify("OK")
 
+# generates thumbnail for note when passed its body content
 @flask_obj.route('/get_thumb/<int:note_id>', methods=["POST"])
 def get_thumb(note_id):
+
+    # get body content
     sen = request.json['note_body']
+
+    # generate new image related to the body content. defaults to leaves if there is specific topic.
     generate_image(sen, note_id)
     response = {
         'path': "thumbnails/" + str(note_id) + ".png"
     }
+
+    # update db to signify that there is a thumbnail for the note
     db.session.execute(db.update(Note).where(Note.id==note_id).values({Note.thumb_url: True}))
     db.session.commit()
     return jsonify(response)
 
+# fetches thumbnail image for specified note and then sends it back to frontend as a response
 @flask_obj.route("/thumbnails/<file>", methods=["GET"])
 def get_image(file):
+
+    # split on "?" character since characters after "?" are random to override browser cache
     file = file.split("?")[0]
     path = "./static/thumbnails/" + file
     return send_file(path)
@@ -224,16 +262,16 @@ def logout():
     return render_template('login.html')
 
 
-# Function to update the user profile
+# Function to update the user profile into database
 def update_user_profile(new_name,new_email, new_password):
     user = User.query.filter(User.id == login_session['id']).first()
     if user:
+        user.username = new_name
         user.email = new_email
-        user.name = new_name
         user.password = generate_password_hash(new_password)
         db.session.commit()
 
-#need to update the password on database into hash
+#Function to ask user to enter new email, password , and username
 @flask_obj.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():
     if request.method == 'POST':
@@ -268,9 +306,57 @@ def convert(note_id):
     pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
     convert_to_pdf(title, body, pdf_path)
     return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
+  
 
 @flask_obj.route('/search', methods=['GET','POST'])
 def search_notes():
     search_query = request.json['search_query']
     matching_notes = Note.query.filter(Note.title.ilike(f'%{search_query}%') | Note.body.ilike(f'%{search_query}%')).all()
     return render_template('search_results.html', notes=matching_notes, query=search_query)
+
+
+@flask_obj.route("/get_tags", methods=['GET'])
+def get_tags():
+    tags = db.session.query(Tag).filter(Tag.user_id == login_session['id']).all()
+
+    tags_list = [
+        {"id": tag.id, "title": tag.title}
+        for tag in tags
+    ]
+
+    return jsonify(tags_list)
+
+@flask_obj.route("/get_notes", methods=["GET"])
+def get_notes():
+    tag_ids = request.args.get("tags")
+
+    if tag_ids:
+        # split selected tag ids into a list using commas as separators
+        tag_ids_list = re.split(',', tag_ids)
+
+        # count the number of matching tags for each note
+        subquery = (
+            db.session.query(Note.id.label("note_id"), func.count(NoteTag.tag_id).label("tag_count"))
+            .join(NoteTag)
+            .filter(Note.id == NoteTag.note_id)
+            .filter(NoteTag.tag_id.in_(tag_ids_list))
+            .group_by(Note.id)
+            .subquery()
+        )
+
+        # filter notes based on the count of matching tags
+        query = (
+            db.session.query(Note)
+            .join(subquery, Note.id == subquery.c.note_id)
+            .filter(subquery.c.tag_count == len(tag_ids_list))
+        )
+        notes = query.all()
+        response = [{"id": note.id, "body": note.body, "title": note.title, "thumb": note.thumb_url} for note in notes]
+        return jsonify(response)
+
+    else:
+        # if no tags are selected, return all notes for this user
+        notes = Note.query.filter(Note.user_id == login_session['id'])
+        response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in notes]
+        return jsonify(response)
+     
