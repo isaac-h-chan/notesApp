@@ -16,3 +16,18 @@ class createUserForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired(), EqualTo("confirmPass", "Passwords must match")])
     confirmPass = PasswordField("Confirm Password", validators=[DataRequired()])
     create = SubmitField("Create Account")
+
+class loginFormSpanish(FlaskForm):
+    
+    email = StringField("Correo electrónico", validators=[DataRequired()])
+    password = PasswordField("contraseña", validators=[DataRequired()])
+    remember = BooleanField("Recuérdame")
+    login = SubmitField("Entrar")
+
+class createUserFormSpanish(FlaskForm):
+    
+    email = StringField("Correo electrónico", validators=[DataRequired()])
+    username = StringField("Usuario")
+    password = PasswordField("contraseña", validators=[DataRequired(), EqualTo("confirmPass", "Las contraseñas deben coincidir")])
+    confirmPass = PasswordField("Confirmar contraseña", validators=[DataRequired()])
+    create = SubmitField("Crear una cuenta")
