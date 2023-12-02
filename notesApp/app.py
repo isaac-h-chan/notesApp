@@ -362,4 +362,12 @@ def get_notes():
     notes = filterTags(tag_ids).all()
     response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in notes]
     return jsonify(response)
+
+@flask_obj.route('/toggle_language', methods=['GET'])
+def toggle_language():
+    if 'lang' not in login_session:
+        login_session['lang'] = 'en'
+    else:
+        login_session['lang'] = 'es' if login_session['lang'] == 'en' else 'en'
+    return redirect(request.referrer)
      
