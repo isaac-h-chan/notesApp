@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Eliminar notas</title>
+</head>
+<body>
+    <header>
+        <img class="logo" src="../static/logo_white.svg" alt="logo">
+        <nav>
+            <ul class="nav__links">
+
+                <li>
+                    <div class="box">
+                        <input type="text" placeholder="Search...">
+                        <a href="#">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </li>
+
+                <li>
+                    <a href="/options_spanish.html">
+                        <i class="fas fa-bars" aria-hidden="true"></i>
+                    </a>
+                </li>
+
+                <li>
+                    <a class="cta" href="/home_spanish">
+                        <button>Ir a la página principal</button>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="notes">
+        <div class="notes__sidebar">
+            <button class="notes__delete" type="button" onclick="delete_selected()">Delete Selected Notes</button>
+            <form action="/home_spanish" method="GET" id="form1" name="form1">
+                <div class="notes__list" id="notes__list">
+                    {% for tuple in note_tuples %}
+                    <div class="notes__list-item dlist_pair" id="note{{ tuple[0] }}" tabindex="-1" type="submit">
+                        <div class="notes__small-title">{{tuple[1]| truncate(30, true, '...',0)}}</div>
+                        <div class="notes__small-body">{{tuple[2] | truncate(45, true,'...',0)}}</div>
+                        <div class="notes__small-updated" id="update">Editado por última vez el viernes 3:00 PM</div>
+                    </div>
+                    {% endfor %}
+                    <input class="clicked" id="clicked" name="clicked" type="hidden">
+                </div>
+            </form>
+        </div>
+
+    <script>
+        let selected = new Set();
+
+        function makeNotesListClickable() {
+            let divs = document.getElementsByClassName("notes__list-item");
+            for (const div of divs) {
+                div.addEventListener('click', () => {
+                    let note_id = parseInt(div.getAttribute('id').slice(4));
+                    console.log(div);
+                    if (selected.has(note_id)) {
+                        // deselect the note
+                        selected.delete(note_id);
+                        div.style.backgroundColor = "rgb(15, 15, 15)";
+                    }
+                    else {
+                        //select the note
+                        selected.add(note_id);
+                        div.style.backgroundColor = "#5c0312";
+                    }
+                    console.log(div.style.backgroundColor);
+                });
+            }
+        }
+
+        makeNotesListClickable()
+
+        function delete_selected() {
+            if (selected.size > 0) {
+                fetch("/delete_notes", {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": 'application/json'
+                    },
+                    body: JSON.stringify({notes: [...selected]})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    for (const id of selected) {
+                        let el = document.getElementById("note"+id);
+                        el.remove();
+                        selected.delete(id);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

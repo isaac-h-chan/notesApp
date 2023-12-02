@@ -1,0 +1,50 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>Aplicación De Notas</title>
+</head>
+
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="flashes">
+        {% for message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    <div class="login-container">
+        <h1>Aplicación De Notas</h1>
+        <form action="/login.html" method="POST">
+            <label for="email">Correo electrónico:</label>
+            <input type="text" id="email" name="email" required>
+
+            {% if error1 %}
+            <p class="error" style="color: red">{{ error1 }}</p>
+            {% endif %}
+
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Iniciar sesión</button>
+
+            {% if error2 %}
+            <p class="error" style="color: red;">{{ error2 }}</p>
+            {% endif %}
+        </form>
+
+        <!-- Add the following link or button for user registration -->
+        <p>¿No tienes una cuenta?<a href="/create_account_spanish.html">Crear cuenta</a></p>
+        <p>¿Olvidaste tu contraseña?<a href="/forgot_password_spanish.html">Restablecer contraseña</a></p>
+
+    </div>
+</body>
+
+</html>

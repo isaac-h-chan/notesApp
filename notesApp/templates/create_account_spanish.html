@@ -1,0 +1,30 @@
+<!-- create_account.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>Crear una cuenta</title>
+</head>
+<body>
+    <div class="create-account-container">
+        <form action="/create_account_spanish" method="POST">
+            <label for="username">Nombre de usuario:</label>
+            <input type="text" id="username" name="username" value="{{data.username}}" required>
+
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="email">Correo electrónico:</label>
+            <input type="email" id="email" name="email" required>
+
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+
+            <button type="submit">Crear una cuenta</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <style>
+    
+        body {
+            color: #333; /* Set the text color for the entire body */
+        }
+
+        h1 {
+            color: #007BFF; /* Set the text color for h1 */
+        }
+
+        label {
+            color: #666; /* Set the text color for labels */
+        }
+
+        input {
+            color: #555; /* Set the text color for input fields */
+        }
+
+        p {
+            color: #28A745; /* Set the text color for paragraphs */
+        }
+
+        a {
+            color: #DC3545; /* Set the text color for links */
+        }
+    </style>
+    <title>Actualiar Perfil</title>
+</head>
+<body>
+    <h1>Actualiza Tu Perfil</h1>
+    
+    <form action="/update_profile_spanish" method="post">
+        <label for="email">Correo Electrónico Actual:</label> 
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="new_name">Nuevo Nombre:</label>
+        <input type="text" id="new_name" name="new_name" required><br>
+
+        <label for="new_email">Nuevo Correo Electrónico:</label>
+        <input type="email" id="new_email" name="new_email" required><br>
+
+        <label for="new_password">Nueva Contraseña:</label>
+        <input type="password" id="new_password" name="new_password" required><br>
+
+        <input type="submit" value="Update Profile">
+    </form>
+
+    <p><a href="{{ url_for('home') }}">Volver al Inicio</a></p>
+</body>
+</html>
