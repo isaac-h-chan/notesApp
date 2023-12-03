@@ -6,13 +6,14 @@
     * Delete Note
     * Filter by Tags (create tags)
     * Generate thumbnails for notes using Together API
+    * Search Notes
 - Kathy (@crxbun) - TEAM LEAD
     * Create Note
     * Filter by Tags (filtering)
     * Delete User Profile
 - Caroline (@Caroline-Zana)
     * Majority of initial frontend
-    * Search notes (in progress)
+    * Search notes
 - Duy (@Duy-Nguyen012)
     * Update User Profile
     * Convert Note into pdf
