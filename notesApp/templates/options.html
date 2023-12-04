@@ -24,7 +24,10 @@
         <div class="option-box" onclick="deleteAllNotes()">Delete all notes</div>
         <a href="update_profile" class="update_profile">Update Profile</a>
         <div class="option-box" onclick="changeCredentials()">Change username or password</div>
-        <div class="option-box" onclick="changeLanguage()">Change language</div>
+        <div id="languageSwitcherContainer">
+            <button onclick="changeLanguage('en')"> English </button>
+            <button onclick="changeLanguage('es')"> Spanish </button>
+        </div>
         <!-- <a href="/login.html" class="option-box">Log Out</a> -->
         <div id="deleteacc" class="option-box">
             <button id="deleteAccountBtn" class="delete_account" type="button" onclick="delete_account()">Delete
@@ -55,5 +58,35 @@
     });
 }
 </script>
+<script>
+    // function to switch language of web page
+    function changeLanguage(lang) {
+    let deleteNotesElement = document.querySelector(".option-box");
+    let updateProfileElement = document.querySelector(".update_profile");
+    let changeCredentialsElement = document.querySelector(".option-box[onclick='changeCredentials()']");
+    let deleteAccountElement = document.querySelector(".delete_account");
+    let backButtonElement = document.querySelector("body > a > button");
+    let englishButton = document.querySelector("#languageSwitcher button:nth-child(1)");
+    let spanishButton = document.querySelector("#languageSwitcher button:nth-child(2)");
 
-</html>
+    if (lang == "en") {
+        deleteNotesElement.innerHTML = "Delete all notes";
+        updateProfileElement.innerHTML = "Update Profile";
+        changeCredentialsElement.innerHTML = "Change username or password";
+        deleteAccountElement.innerHTML = "Delete Account";
+        backButtonElement.innerHTML = "Back";
+        englishButton.innerHTML = "English";
+        spanishButton.innerHTML = "Spanish";
+    } else if (lang == "es") {
+        deleteNotesElement.innerHTML = "Eliminar";
+        updateProfileElement.innerHTML = "Actualizar Perfil";
+        changeCredentialsElement.innerHTML = "Cambiar nombre de usuario o contraseña";
+        deleteAccountElement.innerHTML = "Eliminar cuenta";
+        backButtonElement.innerHTML = "Atrás";
+        englishButton.innerHTML = "Inglés";
+        spanishButton.innerHTML = "Español";
+    }
+}
+ </script>
+</body>
+ </html>
