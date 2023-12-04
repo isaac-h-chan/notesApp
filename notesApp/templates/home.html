@@ -101,10 +101,17 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 </script>
-                <button type="button" class="notes__download" name="button" onclick="download()"
-                    value="save_note_button">Download</button>
+                <button type="button" class="notes__save" name="button" onclick="download()"
+                value="save_note_button">Download</button>
                 <button type="button" class="notes__save" name="button" onclick="handleSaveNote()"
-                    value="save_note_button">Save Note</button>
+                value="save_note_button">Save Note</button>
+                
+                
+                <label>Receiver Email</label>
+                <input id="email" type="text" name="email" value="{{ email}}">
+                <button type="button" class="notes__save" onclick=share_note()>Share Note</button>
+
+
             </form>
         </div>
     </div>
@@ -215,7 +222,35 @@
             let htmlContent =` <h1 style="color: black;">${note_title}</h1><p style="color: black;">${note_body}</p>`;
             html2pdf().from(htmlContent).save();
         }
+        // Function to get the value
+        function share_note(){
+                // Get values from HTML form element
+                let note_title = document.getElementById("note_title").value;
+                let note_body = document.getElementById("note_body").value;
+                let email = document.getElementById("email").value
+                let note_id = document.getElementById("notes__preview").selected_note_id || 0;
+                // Log email and note_id to the console for debugging
+                console.log(email + " " + note_id)
+                // Send POST request to share_id_note endpoint
+                fetch("/share_id_note/" , {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": 'application/json'
+                    },
+                    body: JSON.stringify({
+                        note_title: note_title,
+                        note_body: note_body,
+                        note_id: note_id,
+                        email: email
 
+                    })
+                }
+                ).then( response => {if(!response.ok) {window.alert("Email Not Found")} else {window.alert("Sucessfully Share")} } )
+                // Display the window whether it is sucessfully or cannot find email
+                
+            
+
+            }
         // update all information of preview area whenever user clicks on "New Note"
         function handleNewNote() {
             // clear tags and make them disappear

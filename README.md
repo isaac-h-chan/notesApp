@@ -17,6 +17,9 @@
 - Duy (@Duy-Nguyen012)
     * Update User Profile
     * Convert Note into pdf
+    * Share Note to other user
+    
+
 
 ## How to Run
 1. Pull the repository

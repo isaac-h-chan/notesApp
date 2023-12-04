@@ -1,5 +1,5 @@
 # app.py
-from flask import render_template, request, redirect, url_for, jsonify, flash, send_file
+from flask import abort, render_template, request, redirect, url_for, jsonify, flash, send_file
 from flask import session as login_session
 from notesApp.models import User, Tag, Note, NoteTag
 from notesApp import flask_obj, db
@@ -7,7 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from flask import Flask, render_template, request, send_file
 from fpdf import FPDF
-import os
 from notesApp.thumb import generate_image
 import re
 
@@ -284,29 +283,49 @@ def update_profile():
 
     return render_template('update_profile.html')
 
-def convert_to_pdf(title, body, pdf_filename):
+# Function that share note to other user
+@flask_obj.route('/share_id_note/', methods=["POST"])
+def share_note():
+    #Extract note_id and email from json request
+    note_id = request.json['note_id']
+    email = request.json['email']
+    user_exists = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
+    if user_exists:
+    #Retrieve the user ID with email from the database
+        share_user = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
+        if request.method == 'POST':
+            if share_user is not None:
+                # If note_id = 0, it indicates that a new note
+                if note_id == 0:
+                    title = "New Note" if not request.json['note_title'] else request.json['note_title']
+                    body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
-    # Construct the full path for the PDF file
-    os.makedirs(os.path.dirname(pdf_filename), exist_ok=True)
+                    #Create a new note and add to the database
+                    new_note = Note(title=title, body=body, user_id = share_user, thumb_url=False)
+                    db.session.add(new_note)
+                    db.session.commit()
+                    response = {
+                    "new": True,
+                    "note_title": title,
+                    "note_body": body,
+                    "note_id": new_note.id
+                }
+                else: # for existing note
+                    title = "New Note" if not request.json['note_title'] else request.json['note_title']
+                    body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, title)
-    pdf.multi_cell(0, 10, body)
-    pdf.output(pdf_filename)
+                    new_note = Note(title=title, body=body, user_id = share_user, thumb_url=False)
+                    db.session.add(new_note)
+                    db.session.commit()
+                    response = {
+                    "new": True,
+                    "note_title": title,
+                    "note_body": body,
+                }
+        return jsonify(response)
+    else:
+        abort(404) #Connect to JS
 
-
-@flask_obj.route("/download/<int:note_id>", methods=["POST"])
-def convert(note_id):
-    note = db.session.execute(db.select(Note).where(Note.id==note_id)).scalar()
-    title = note.title
-    body = note.body
-    pdf_filename = f"{note_id}.pdf"
-    pdf_path = os.path.join("/Users/nguyenduy/Desktop/" , pdf_filename)
-    convert_to_pdf(title, body, pdf_path)
-    return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
-  
 # gets all notes from db with selected tags and have search query in either title or body
 @flask_obj.route('/search', methods=['GET','POST'])
 def search_notes():
@@ -315,7 +334,7 @@ def search_notes():
     notes = filterTags(tag_ids)
     matching_notes = notes.filter(Note.title.ilike(f'%{search_query}%') | Note.body.ilike(f'%{search_query}%')).all()
     response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in matching_notes]
-    return jsonify(response)
+    return 
 
 @flask_obj.route("/get_tags", methods=['GET'])
 def get_tags():
