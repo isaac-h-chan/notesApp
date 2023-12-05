@@ -15,7 +15,7 @@
     * Majority of initial frontend
     * Search notes
 - Duy (@Duy-Nguyen012)
-    * Forgot passowrd (replace Lock Note)
+    * Forgot passowrd (replace Lock Note - don't have time to implement) 
     * Update User Profile
     * Convert Note into pdf
     * Send Note to other user
