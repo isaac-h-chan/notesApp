@@ -5,9 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
+    
     <title>Create Account</title>
 </head>
 <body>
+    <div id="languageSwitcherContainer">
+        <button onclick="changeLanguage('en')"> English </button>
+        <button onclick="changeLanguage('es')"> Spanish </button>
+    </div>
+    <a href="/" id="backButton"><button id="backButtonInner">Back</button></a>
+    <style>
+        languageSwitcherContainer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        /* Add this style to adjust the spacing between language buttons */
+        #languageSwitcherContainer {
+            margin-left: 10px; /* Adjust the value as needed */
+        
+        }
+    </style>
     <div class="create-account-container">
         <form action="/create_account" method="POST">
             <label for="username">Username:</label>
@@ -27,4 +46,41 @@
         </form>
     </div>
 </body>
+
+<script>
+    // function to switch language of the web page
+    function changeLanguage(lang) {
+        // Add or modify the elements you want to translate
+        let englishButton = document.querySelector("#languageSwitcherContainer button:nth-child(1)");
+        let spanishButton = document.querySelector("#languageSwitcherContainer button:nth-child(2)");
+        let backButton = document.querySelector("#backButton");
+        let usernameLabel = document.querySelector("label[for='username']");
+        let passwordLabel = document.querySelector("label[for='password']");
+        let emailLabel = document.querySelector("label[for='email']");
+        let createAccountBtn = document.querySelector(".create-account-container button");
+
+        if (lang == "en") {
+            englishButton.innerHTML = "English";
+            spanishButton.innerHTML = "Spanish";
+            backButtonInner.innerHTML = "Volver";
+            usernameLabel.innerHTML = "Username:";
+            passwordLabel.innerHTML = "Password:";
+            emailLabel.innerHTML = "Email:";
+            createAccountBtn.innerHTML = "Create Account";
+        } else if (lang == "es") {
+            englishButton.innerHTML = "Inglés";
+            spanishButton.innerHTML = "Español";
+            backButtonInner.innerHTML = "Volver";
+            usernameLabel.innerHTML = "Usuario:";
+            passwordLabel.innerHTML = "Contraseña:";
+            emailLabel.innerHTML = "Correo electrónico:";
+            createAccountBtn.innerHTML = "Crear cuenta";
+        }
+
+        // Call other language-specific translation functions if needed
+
+        // ... (Add translations for other elements as needed)
+    }
+</script>
+
 </html>
