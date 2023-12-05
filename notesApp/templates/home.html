@@ -109,7 +109,7 @@
                 
                 <label>Receiver Email</label>
                 <input id="email" type="text" name="email" value="{{ email}}">
-                <button type="button" class="notes__save" onclick=share_note()>Share Note</button>
+                <button type="button" class="notes__save" onclick=send_note()>Send Note</button>
 
 
             </form>
@@ -223,7 +223,7 @@
             html2pdf().from(htmlContent).save();
         }
         // Function to get the value
-        function share_note(){
+        function send_note(){
                 // Get values from HTML form element
                 let note_title = document.getElementById("note_title").value;
                 let note_body = document.getElementById("note_body").value;

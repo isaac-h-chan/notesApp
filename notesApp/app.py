@@ -62,22 +62,23 @@ def forgot_password():
     if request.method == 'POST':
         # Check if the provided email exists in the database
         email = request.form.get('email')
-        user = next((user for user in users if user['email'] == email), None)
-
-        if user:
-            # Implement logic to send a password reset link (not implemented in this example)
-            # You can send an email with a reset link or generate a token and provide a link with the token
-            # For simplicity, this example just redirects to a confirmation page
-            return redirect(url_for('password_reset_confirmation'))
+        new_password = request.form.get('new_password')
+        user_exists = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
+        if user_exists:
+            update_forgot_password(new_password)
+            return redirect(url_for('login'))
         else:
-            # Handle the case where the email is not found in the database
-            return render_template('forgot_password.html', error='Email not found.')
+            return render_template('forgot_password.html', error_message='Email not found')
 
     return render_template('forgot_password.html')
+def update_forgot_password(new_password):
+    user = User.query.filter(User.id == login_session['id']).first()
+    if user:
+        user.password = generate_password_hash(new_password)
+        db.session.commit()
 
-@flask_obj.route('/password_reset_confirmation')
-def password_reset_confirmation():
-    return render_template('password_reset_confirmation.html')
+    
+
 
 # serve home.html to frontend and populate fields with all notes associated with user id
 @flask_obj.route('/home', methods=['GET', 'POST'])
@@ -285,7 +286,7 @@ def update_profile():
 
 # Function that share note to other user
 @flask_obj.route('/share_id_note/', methods=["POST"])
-def share_note():
+def send_note():
     #Extract note_id and email from json request
     note_id = request.json['note_id']
     email = request.json['email']
