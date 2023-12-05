@@ -289,39 +289,36 @@ def share_note():
     #Extract note_id and email from json request
     note_id = request.json['note_id']
     email = request.json['email']
-    user_exists = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
-    if user_exists:
-    #Retrieve the user ID with email from the database
+    if request.method == "POST":
         share_user = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
-        if request.method == 'POST':
-            if share_user is not None:
-                # If note_id = 0, it indicates that a new note
-                if note_id == 0:
-                    title = "New Note" if not request.json['note_title'] else request.json['note_title']
-                    body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
+        if share_user:
+            # If note_id = 0, it indicates that a new note
+            if note_id == 0:
+                title = "New Note" if not request.json['note_title'] else request.json['note_title']
+                body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
-                    #Create a new note and add to the database
-                    new_note = Note(title=title, body=body, user_id = share_user, thumb_url=False)
-                    db.session.add(new_note)
-                    db.session.commit()
-                    response = {
-                    "new": True,
-                    "note_title": title,
-                    "note_body": body,
-                    "note_id": new_note.id
-                }
-                else: # for existing note
-                    title = "New Note" if not request.json['note_title'] else request.json['note_title']
-                    body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
+                #Create a new note and add to the database
+                new_note = Note(title=title, body=body, user_id = share_user, thumb_url=False)
+                db.session.add(new_note)
+                db.session.commit()
+                response = {
+                "new": True,
+                "note_title": title,
+                "note_body": body,
+                "note_id": new_note.id
+            }
+            else: # for existing note
+                title = "New Note" if not request.json['note_title'] else request.json['note_title']
+                body = "Note body goes here!" if not request.json['note_body'] else request.json['note_body']
 
-                    new_note = Note(title=title, body=body, user_id = share_user, thumb_url=False)
-                    db.session.add(new_note)
-                    db.session.commit()
-                    response = {
-                    "new": True,
-                    "note_title": title,
-                    "note_body": body,
-                }
+                new_note = Note(title=title, body=body, user_id = share_user, thumb_url=False)
+                db.session.add(new_note)
+                db.session.commit()
+                response = {
+                "new": True,
+                "note_title": title,
+                "note_body": body,
+            }
         return jsonify(response)
     else:
         abort(404) #Connect to JS
@@ -334,7 +331,7 @@ def search_notes():
     notes = filterTags(tag_ids)
     matching_notes = notes.filter(Note.title.ilike(f'%{search_query}%') | Note.body.ilike(f'%{search_query}%')).all()
     response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in matching_notes]
-    return 
+    return jsonify(response)
 
 @flask_obj.route("/get_tags", methods=['GET'])
 def get_tags():
