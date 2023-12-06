@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="../static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
     <style>
         body {
             background-color: black;
@@ -58,24 +57,70 @@
     <title>Update Profile</title>
 </head>
 <body>
-    <h1>Update Your Profile</h1>
-    
+    <h1 id="updateProfileHeading">Update Your Profile</h1>
+    <div id="languageSwitcherContainer">
+        <button onclick="changeLanguage('en')"> English </button>
+        <button onclick="changeLanguage('es')"> Spanish </button>
+    </div>
     <form action="/update_profile" method="post">
-        <label for="email">Current Email:</label> 
+        <label for="email" id="currentEmailLabel">Current Email:</label> 
         <input type="email" id="email" name="email" required><br>
 
-        <label for="new_name">New Name:</label>
+        <label for="new_name" id="newNameLabel">New Name:</label>
         <input type="text" id="new_name" name="new_name" required><br>
 
-        <label for="new_email">New Email:</label>
+        <label for="new_email" id="newEmailLabel">New Email:</label>
         <input type="email" id="new_email" name="new_email" required><br>
 
-        <label for="new_password">New Password:</label>
+        <label for="new_password" id="newPasswordLabel">New Password:</label>
         <input type="password" id="new_password" name="new_password" required><br>
 
-        <input type="submit" value="Update Profile">
+        <input type="submit" value="Update Profile" id="updateProfileButton">
     </form>
 
-    <p><a href="{{ url_for('home') }}">Back to Homepage</a></p>
+    <p><a href="/" id="backButton"><button id="backButtonInner">Back to homepage</button></a></p>
 </body>
+
+<script>
+    // function to switch language of the web page
+    function changeLanguage(lang) {
+        // Add or modify the elements you want to translate
+        let englishButton = document.querySelector("#languageSwitcherContainer button:nth-child(1)");
+        let spanishButton = document.querySelector("#languageSwitcherContainer button:nth-child(2)");
+        let backButtonInner = document.querySelector("#backButtonInner");
+        let updateProfileHeading = document.querySelector("#updateProfileHeading");
+        let currentEmailLabel = document.querySelector("#currentEmailLabel");
+        let newNameLabel = document.querySelector("#newNameLabel");
+        let newEmailLabel = document.querySelector("#newEmailLabel");
+        let newPasswordLabel = document.querySelector("#newPasswordLabel");
+        let updateProfileButton = document.querySelector("#updateProfileButton");
+
+        if (lang == "en") {
+            englishButton.innerHTML = "English";
+            spanishButton.innerHTML = "Spanish";
+            backButtonInner.innerHTML = "Back to homepage";
+            updateProfileHeading.innerHTML = "Update Your Profile";
+            currentEmailLabel.innerHTML = "Current Email:";
+            newNameLabel.innerHTML = "New Name:";
+            newEmailLabel.innerHTML = "New Email:";
+            newPasswordLabel.innerHTML = "New Password:";
+            updateProfileButton.value = "Update Profile";
+
+        } else if (lang == "es") {
+            englishButton.innerHTML = "Inglés";
+            spanishButton.innerHTML = "Español";
+            backButtonInner.innerHTML = "Volver a la página de inicio";
+            updateProfileHeading.innerHTML = "Actualizar tu perfil";
+            currentEmailLabel.innerHTML = "Correo electrónico actual:";
+            newNameLabel.innerHTML = "Nuevo nombre:";
+            newEmailLabel.innerHTML = "Nuevo correo electrónico:";
+            newPasswordLabel.innerHTML = "Nueva contraseña:";
+            updateProfileButton.value = "Actualizar perfil";
+        }
+
+        // Call other language-specific translation functions if needed
+
+        // ... (Add translations for other elements as needed)
+    }
+</script>
 </html>
