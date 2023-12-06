@@ -7,7 +7,7 @@
 6. The user should be able to edit a note.
 7. The user should be able to delete a note.
 8. The user should be able to search up notes.
-9. The user should be able to share notes with other users.
+9. The user should be able to send notes with other users.
 10. The user should be able to lock notes with a passcode.
 11. The user should be able to filter notes by tags.
 12. The user should be able to delete their profile
@@ -232,13 +232,13 @@ Post-conditions
 - The customer/user can view the content in which they searched for. 
 
 ## Requirement 9
-Name: The user should be able to share notes with other users
+Name: The user should be able to send notes with other users
 
 Actors: A user which is logged in.
 
 Precondition: The user has a preexisting account on the website and is logged in. The user has created at least one note.
 
-Trigger: The user clicks on the note they wish to share, then presses the "Share" icon.
+Trigger: The user clicks on the note they wish to share, then presses the "Send Note" icon.
 
 Primary Sequence:
 1. System prompts user to search the username of a pre-existing user to share the note with.
@@ -250,7 +250,6 @@ Primary Postconditions
 
 Alternative Sequence:   
 The user has already shared the note with the entered user:
-1. An error occurs, and a prompt is shown warning that the entered user already has access to the current note.
 
 The user enters in an invalid username (username does not exist in the database):
 1. User is prompted that the username entered does not exist.

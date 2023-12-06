@@ -27,5 +27,9 @@
 - Continue to work on the individual's part, raise up issue and solve together if needed (1:30 mins)
 - Summarize group progress and decide the next meeting take place (2023-11-29 at 18:00)
 ### 2023-11-29 at 18:00
-
+- Attendie : Issac, Katy, Caroline, Duy
+- Team go over with the progress so far with implementing the requirement(20 mins)
+- Implementing the web and discuss the issue
+- Continue to work on the individual's part, raise up issue and solve together if needed (1:30 mins)
+- Summarize group progress 
 
