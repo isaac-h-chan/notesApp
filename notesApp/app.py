@@ -290,8 +290,8 @@ def send_note():
     #Extract note_id and email from json request
     note_id = request.json['note_id']
     email = request.json['email']
-    user_exists = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
-    if user_exists:
+    share_user = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
+    if share_user:
     #Retrieve the user ID with email from the database
         share_user = db.session.execute(db.select(User.id).where(User.email == email)).scalar()
         if request.method == 'POST':
@@ -335,7 +335,7 @@ def search_notes():
     notes = filterTags(tag_ids)
     matching_notes = notes.filter(Note.title.ilike(f'%{search_query}%') | Note.body.ilike(f'%{search_query}%')).all()
     response = [{"id": note.id, "body": note.body, "title": note.title, 'thumb': note.thumb_url} for note in matching_notes]
-    return 
+    return jsonify(response)
 
 @flask_obj.route("/get_tags", methods=['GET'])
 def get_tags():
