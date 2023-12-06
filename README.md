@@ -14,6 +14,7 @@
 - Caroline (@Caroline-Zana)
     * Majority of initial frontend
     * Search notes
+    * Language translation Spanish (originally checklist but switched because not enough time)
 - Duy (@Duy-Nguyen012)
     * Forgot passowrd (replace Lock Note - don't have time to implement) 
     * Update User Profile
