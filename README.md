@@ -1,3 +1,6 @@
+# Mintnote Overview Video
+[Overview Video Link](https://drive.google.com/file/d/1a-GPOUyDBau_DcBYYHEKrJ4bqICacoKG/view?usp=sharing)
+
 # Mintnote
 - Isaac (@isaac-h-chan)
     * Create User Profile
